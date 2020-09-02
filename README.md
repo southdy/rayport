@@ -9,8 +9,9 @@ Note that rayport doesn't require raylib as rayport uses rayfork functions!
 ### Why rayport?
 
 - Port raylib games easily to iOS and Game consoles via rayfork!
-- Easy way to save porting time (You just write extern voids)!
+- Easy way to save porting time, You just need to write window and input code!
 - More independency to raylib via rayfork (As rayfork can use any window and input backend you can use rayport).
+- rayport is written in C99, Making it portable and easy to use anywhere you name it!
 
 ### Example
 
@@ -55,12 +56,12 @@ int main()
 }
 ```
 
-Original code can be found [here!](https://github.com/SasLuca/rayfork-tests/blob/master/special-setup-tests/simple-glfw/main.c).
+Original code can be found [here](https://github.com/SasLuca/rayfork-tests/blob/master/special-setup-tests/simple-glfw/main.c).
 
 ### NOTES
 
 1. Note that rayfork still miss some functions unlike raylib, So some functions aren't wrapped yet!
-3. Values of gamepad stuff in enums predefined for compatibility with raylib, As you use input library with rayfork!
+2. Values of gamepad stuff in enums predefined for compatibility with raylib, As you use input library with rayfork!
 
 ### Special Thanks
 
