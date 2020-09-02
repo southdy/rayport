@@ -1,6 +1,6 @@
 # rayport
 
-Awesome raylib wrapper for rayfork, All in a single header without worries!
+Awesome [raylib](https://github.com/raysan5/raylib) wrapper for [rayfork](https://github.com/SasLuca/rayfork), All in a single header without worries!
 
 rayport wraps raylib API depending on what rayfork supports from raylib...That's to keep compatibiltiy, Also RLGL and raymath wrapped!
 
