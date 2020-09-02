@@ -1,6 +1,6 @@
 # rayport
 
-Awesome way to port raylib code to rayfork, All in a single header without worry!
+Awesome raylib wrapper for rayfork, All in a single header without worry!
 
 rayport wraps raylib API depending on what rayfork supports from raylib...That's to keep compatibiltiy, Also RLGL and raymath wrapped!
 
