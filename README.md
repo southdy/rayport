@@ -8,10 +8,11 @@ Note that rayport doesn't require raylib as rayport uses rayfork functions!
 
 ### Why rayport?
 
-- Port raylib games easily to iOS and Game consoles via rayfork!
+- Port raylib games easily to iOS and Consoles via rayfork!
 - Easy way to save porting time, You just need to write window and input code!
-- More independency to raylib via rayfork (As rayfork can use any window and input backend you can use rayport).
+- More independency to raylib via rayfork (As rayfork can use any window and input backend/library you can use rayport).
 - rayport is written in C99, Making it portable and easy to use anywhere you name it!
+- No compilation needed, Just include `rayport.h` with your game that includes rayfork and all done!
 
 ### Example
 
@@ -62,6 +63,8 @@ Original code can be found [here](https://github.com/SasLuca/rayfork-tests/blob/
 
 1. Note that rayfork still miss some features unlike raylib, So some functions aren't wrapped yet!
 2. Values of gamepad stuff in enums predefined for compatibility with raylib, As you use input library with rayfork!
+3. API definitions like `RLAPI` and `RMDEF` uses `RF_API` instead of defining them as standalone ones.
+4. Audio isn't available in rayfork yet, But once rayfork add it i will make sure to wrap the audio API.
 
 ### Special Thanks
 
