@@ -60,8 +60,7 @@ Original code can be found [here!](https://github.com/SasLuca/rayfork-tests/blob
 ### NOTES
 
 1. Note that rayfork still miss some functions unlike raylib, So some functions aren't wrapped yet!
-2. As rayfork missing some functionality, I had no choice but i decided to get them from raymath.h and raylib.h (Too little stuff to mention).
-3. I defined values of gamepad buttons and analogs to be compatible with raylib, As you must use input backend with rayfork!
+3. Values of gamepad stuff in enums predefined for compatibility with raylib, As you use input library with rayfork!
 
 ### Special Thanks
 
