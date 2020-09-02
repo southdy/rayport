@@ -1,5 +1,5 @@
 // Created by Rabia Alhaffar in 1/September/2020
-// rayport, Easy way to port raylib projects to rayfork!
+// rayport, Awesome raylib wrapper for rayfork, All in a single header without worries!
 // Built for: rayfork v0.9
 // Last update: 2/September/2020
 #pragma region
@@ -634,6 +634,7 @@ RLAPI void UnloadMesh(Mesh mesh) { rf_unload_mesh_ez(mesh); }
 
 // Material loading/unloading functions
 RLAPI Material LoadMaterialDefault(void) { return rf_load_default_material_ez(); }
+RLAPI rf_materials_array LoadMaterials(const char* fileName) { return rf_load_materials_from_mtl_ez(&fileName); }
 RLAPI void UnloadMaterial(Material material) { rf_unload_material_ez(material); }
 RLAPI void SetMaterialTexture(Material* material, int mapType, Texture2D texture) { material->maps[mapType].texture = texture; }
 RLAPI void SetModelMeshMaterial(Model* model, int meshId, int materialId) {
@@ -644,6 +645,7 @@ RLAPI void SetModelMeshMaterial(Model* model, int meshId, int materialId) {
 RLAPI ModelAnimation* LoadModelAnimations(const char* fileName, int* animsCount) { rf_load_model_animations_from_iqm_ez(fileName, animsCount); }
 RLAPI void UpdateModelAnimation(Model model, ModelAnimation anim, int frame) { rf_update_model_animation(model, anim, frame); }
 RLAPI void UnloadModelAnimation(ModelAnimation anim) { rf_unload_model_animation_ez(anim); }
+RLAPI bool IsModelAnimationValid(Model model, ModelAnimation anim) { return rf_is_model_animation_valid(model, anim); }
 
 // Mesh generation functions
 RLAPI Mesh GenMeshPoly(int sides, float radius) { return rf_gen_mesh_poly_ez(sides, radius); }
@@ -661,7 +663,6 @@ RLAPI Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize) { return rf_gen_mes
 RLAPI BoundingBox MeshBoundingBox(Mesh mesh) { return rf_mesh_bounding_box(mesh); }
 RLAPI void MeshTangents(Mesh* mesh) { rf_mesh_compute_tangents_ez(mesh); }
 RLAPI void MeshBinormals(Mesh* mesh) { rf_mesh_compute_binormals(mesh); }
-RLAPI bool IsModelAnimationValid(Model model, ModelAnimation anim) { return rf_is_model_animation_valid(model, anim); }
 
 // Model drawing functions
 RLAPI void DrawModel(Model model, Vector3 position, float scale, Color tint) { rf_draw_model(model, position, scale, tint); }
@@ -687,6 +688,7 @@ RLAPI RayHitInfo GetCollisionRayGround(Ray ray, float groundHeight) { return rf_
 // Shader loading/unloading functions
 RLAPI Shader LoadShaderCode(char* vsCode, char* fsCode) { return rf_gfx_load_shader(vsCode, fsCode); }
 RLAPI void UnloadShader(Shader shader) { rf_gfx_unload_shader(shader); }
+
 RLAPI Shader GetShaderDefault(void) { return rf_get_default_shader(); }
 RLAPI Texture2D GetTextureDefault(void) { return rf_get_default_texture(); }
 RLAPI void SetShapesTexture(Texture2D texture, Rectangle source) { rf_set_shapes_texture(texture, source); }
@@ -702,11 +704,20 @@ RLAPI void SetMatrixModelview(Matrix view) { rf_gfx_set_matrix_modelview(view); 
 RLAPI Matrix GetMatrixModelview(void) { return rf_gfx_get_matrix_modelview(); }
 RLAPI Matrix GetMatrixProjection(void) { return rf_gfx_get_matrix_projection(); }
 
+// Texture maps generation (PBR)
+RLAPI Texture2D GenTextureCubemap(Shader shader, Texture2D map, int size) { return rf_gen_texture_cubemap(shader, map, size); }
+RLAPI Texture2D GenTextureIrradiance(Shader shader, Texture2D cubemap, int size) { return rf_gen_texture_irradiance(shader, cubemap, size); }
+RLAPI Texture2D GenTexturePrefilter(Shader shader, Texture2D cubemap, int size) { return rf_gen_texture_prefilter(shader, cubemap, size); }
+RLAPI Texture2D GenTextureBRDF(Shader shader, int size) { return rf_gen_texture_brdf(shader, size); }
+
 // Shading begin/end functions
 RLAPI void BeginShaderMode(Shader shader) { rf_begin_shader(shader); }
 RLAPI void EndShaderMode(void) { rf_end_shader(); }
 RLAPI void BeginBlendMode(int mode) { rf_gfx_blend_mode(mode); }
 RLAPI void EndBlendMode(void) { rf_end_blend_mode(); }
+
+// VR module will wrapped once rayfork supports it!
+// Audio module will wrapped once rayfork supports it!
 
 // RLGL
 //----------------------------------------------------------------------------------
@@ -803,6 +814,7 @@ RLAPI unsigned int rlLoadAttribBuffer(unsigned int vaoId, int shaderLoc, void* b
 //------------------------------------------------------------------------------------
 RLAPI void rlglClose(void) { rf_gfx_close(); }
 RLAPI void rlglDraw(void) { rf_gfx_draw(); }
+
 RLAPI bool rlCheckBufferLimit(int vCount) { return rf_gfx_check_buffer_limit(vCount); }
 RLAPI void rlSetDebugMarker(const char* text) { rf_gfx_set_debug_marker(text); }
 
@@ -812,6 +824,7 @@ RLAPI unsigned int rlLoadTextureDepth(int width, int height, int bits, bool useR
 RLAPI unsigned int rlLoadTextureCubemap(void* data, int size, int format) { return rf_gfx_load_texture_cubemap(data, size, format); }
 RLAPI void rlUpdateTexture(unsigned int id, int offsetX, int offsetY, int width, int height, int format, const void* data) { rf_gfx_update_texture(id, offsetX, offsetY, width, height, format, data); }
 RLAPI void rlUnloadTexture(unsigned int id) { rf_gfx_unload_texture(id); }
+
 RLAPI void rlGenerateMipmaps(Texture2D* texture) { rf_gfx_generate_mipmaps(texture); }
 RLAPI void* rlReadTexturePixels(Texture2D texture) { rf_gfx_read_texture_pixels_ez(texture); }
 RLAPI unsigned char* rlReadScreenPixels(int width, int height, Color* dstColor) { rf_gfx_read_screen_pixels(dstColor, width, height); }
@@ -1110,8 +1123,6 @@ RMDEF void QuaternionToAxisAngle(Quaternion q, Vector3* outAxis, float* outAngle
 RMDEF Quaternion QuaternionFromEuler(float roll, float pitch, float yaw) { return rf_quaternion_from_euler(roll, pitch, yaw); }
 RMDEF Vector3 QuaternionToEuler(Quaternion q) { return rf_quaternion_to_euler(q); }
 RMDEF Quaternion QuaternionTransform(Quaternion q, Matrix mat) { return rf_quaternion_transform(q, mat); }
-
-// Audio coming Soon, Once rayfork hit v1.0 :)
 
 #endif // RAYPORT_H
 #pragma endregion

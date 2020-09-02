@@ -64,7 +64,8 @@ Original code can be found [here](https://github.com/SasLuca/rayfork-tests/blob/
 1. Note that rayfork still miss some features unlike raylib, So some functions aren't wrapped yet!
 2. Values of gamepad stuff in enums predefined for compatibility with raylib, As you use input library with rayfork!
 3. API definitions like `RLAPI` and `RMDEF` uses `RF_API` instead of defining them as standalone ones.
-4. Audio isn't available in rayfork yet, But once rayfork add it i will make sure to wrap the audio API.
+
+> For list of available wrapped functions (As enums and colors wrapped), See [here](https://github.com/Rabios/rayport/blob/master/api.md).
 
 ### Special Thanks
 
