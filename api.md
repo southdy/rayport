@@ -383,7 +383,7 @@ RMDEF Vector3 Vector3Max(Vector3 v1, Vector3 v2);
 RMDEF Vector3 Vector3Barycenter(Vector3 p, Vector3 a, Vector3 b, Vector3 c);
 RMDEF float3 Vector3ToFloatV(Vector3 v);
 RMDEF float* Vector3ToFloat(Vector3 vec);
-RMDEF Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view);
+RMDEF Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view);
 
 RMDEF float MatrixDeterminant(Matrix mat);
 RMDEF float MatrixTrace(Matrix mat);
