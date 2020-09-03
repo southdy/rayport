@@ -5,6 +5,7 @@ Here is list of functions wrapped by rayport from raylib and supported via rayfo
 I recommend you having some experience in C before reading this...
 
 ```c
+RLAPI void TraceLog(TraceLogType log_type, const char* msg, ...);
 RLAPI void ClearBackground(Color color);                          // Set background color (framebuffer clear color)
 RLAPI void BeginDrawing(void);                                    // Setup canvas (framebuffer) to start drawing
 RLAPI void EndDrawing(void);                                      // End canvas drawing and swap buffers (double buffering)
@@ -45,6 +46,8 @@ RLAPI void DrawCircleSectorLines(Vector2 center, float radius, int startAngle, i
 RLAPI void DrawCircleGradient(int centerX, int centerY, float radius, Color color1, Color color2);       // Draw a gradient-filled circle
 RLAPI void DrawCircleV(Vector2 center, float radius, Color color);                                       // Draw a color-filled circle (Vector version)
 RLAPI void DrawCircleLines(int centerX, int centerY, float radius, Color color);                         // Draw circle outline
+RLAPI void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, Color color);              // Draw ellipse
+RLAPI void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, Color color);         // Draw ellipse outline
 RLAPI void DrawRing(Vector2 center, float innerRadius, float outerRadius, int startAngle, int endAngle, int segments, Color color); // Draw ring
 RLAPI void DrawRingLines(Vector2 center, float innerRadius, float outerRadius, int startAngle, int endAngle, int segments, Color color);    // Draw ring outline
 RLAPI void DrawRectangle(int posX, int posY, int width, int height, Color color);                        // Draw a color-filled rectangle
@@ -63,6 +66,7 @@ RLAPI void DrawTriangleLines(Vector2 v1, Vector2 v2, Vector2 v3, Color color);  
 RLAPI void DrawTriangleFan(Vector2 *points, int numPoints, Color color);                                 // Draw a triangle fan defined by points (first vertex is the center)
 RLAPI void DrawTriangleStrip(Vector2 *points, int pointsCount, Color color);                             // Draw a triangle strip defined by points
 RLAPI void DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color);               // Draw a regular polygon (Vector version)
+RLAPI void DrawPolyLines(Vector2 center, int sides, float radius, float rotation, Color color);          // Draw a polygon outline of n sides
 
 RLAPI bool CheckCollisionLineLine(Vector2 startPos1, Vector2 endPos1, Vector2 startPos2, Vector2 endPos2);   // Check collision between two lines
 RLAPI bool CheckCollisionLineRec(Vector2 startPos, Vector2 endPos, Rectangle rec);                           // Check collision between line and rectangle
@@ -120,10 +124,17 @@ RLAPI void ImageColorReplace(Image *image, Color color, Color replace);         
 RLAPI Color *ImageExtractPalette(Image image, int maxPaletteSize, int *extractCount);                    // Extract color palette from image to maximum size (memory should be freed)
 RLAPI Rectangle GetImageAlphaBorder(Image image, float threshold);                                       // Get image alpha border rectangle
 
+RLAPI void ImageClearBackground(Image *dst, Color color);                                                // Clear image background with given color
 RLAPI void ImageDrawRectangle(Image *dst, int posX, int posY, int width, int height, Color color);       // Draw rectangle within an image
 RLAPI void ImageDrawRectangleV(Image *dst, Vector2 position, Vector2 size, Color color);                 // Draw rectangle within an image (Vector version)
 RLAPI void ImageDrawRectangleRec(Image *dst, Rectangle rec, Color color);                                // Draw rectangle within an image 
 RLAPI void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint);             // Draw a source image within a destination image (tint applied to source)
+RLAPI void ImageDrawPixel(Image *dst, int posX, int posY, Color color);                                  // Draw pixel within an image
+RLAPI void ImageDrawPixelV(Image *dst, Vector2 position, Color color);                                   // Draw pixel within an image (Vector version)
+RLAPI void ImageDrawLine(Image *dst, int startPosX, int startPosY, int endPosX, int endPosY, Color color); // Draw line within an image
+RLAPI void ImageDrawLineV(Image *dst, Vector2 start, Vector2 end, Color color);                          // Draw line within an image (Vector version)
+RLAPI void ImageDrawCircle(Image *dst, int centerX, int centerY, int radius, Color color);               // Draw circle within an image
+RLAPI void ImageDrawCircleV(Image *dst, Vector2 center, int radius, Color color);                        // Draw circle within an image (Vector version)
 
 RLAPI void GenTextureMipmaps(Texture2D *texture);                                                        // Generate GPU mipmaps for a texture
 RLAPI void SetTextureFilter(Texture2D texture, int filterMode);                                          // Set texture scaling filter mode
@@ -248,7 +259,6 @@ RLAPI void EndBlendMode(void);                                            // End
 // VR module will wrapped once rayfork supports it!
 // Audio module will wrapped once rayfork supports it!
 
-// RLGL (rlgl.h)
 RLAPI void rlMatrixMode(int mode);                    // Choose the current matrix to be transformed
 RLAPI void rlPushMatrix(void);                        // Push the current matrix to stack
 RLAPI void rlPopMatrix(void);                         // Pop lattest inserted matrix from stack
@@ -322,7 +332,6 @@ RLAPI void rlUpdateMeshAt(Mesh mesh, int buffer, int num, int index);     // Upd
 RLAPI void rlDrawMesh(Mesh mesh, Material material, Matrix transform);    // Draw a 3d mesh with material and transform
 RLAPI void rlUnloadMesh(Mesh mesh);                                       // Unload mesh data from CPU and GPU
 
-// raymath (raymath.h)
 RMDEF Vector2 Vector2Zero(void);
 RMDEF Vector2 Vector2One(void);
 RMDEF Vector2 Vector2Add(Vector2 v1, Vector2 v2);
@@ -416,4 +425,33 @@ RMDEF void QuaternionToAxisAngle(Quaternion q, Vector3* outAxis, float* outAngle
 RMDEF Quaternion QuaternionFromEuler(float roll, float pitch, float yaw);
 RMDEF Vector3 QuaternionToEuler(Quaternion q);
 RMDEF Quaternion QuaternionTransform(Quaternion q, Matrix mat);
+
+EASEDEF float EaseLinearNone(float t, float b, float c, float d);
+EASEDEF float EaseLinearIn(float t, float b, float c, float d);
+EASEDEF float EaseLinearOut(float t, float b, float c, float d);
+EASEDEF float EaseLinearInOut(float t, float b, float c, float d);
+EASEDEF float EaseSineIn(float t, float b, float c, float d);
+EASEDEF float EaseSineOut(float t, float b, float c, float d);
+EASEDEF float EaseSineInOut(float t, float b, float c, float d);
+EASEDEF float EaseCircIn(float t, float b, float c, float d);
+EASEDEF float EaseCircOut(float t, float b, float c, float d);
+EASEDEF float EaseCircInOut(float t, float b, float c, float d);
+EASEDEF float EaseCubicIn(float t, float b, float c, float d);
+EASEDEF float EaseCubicOut(float t, float b, float c, float d);
+EASEDEF float EaseCubicInOut(float t, float b, float c, float d);
+EASEDEF float EaseQuadIn(float t, float b, float c, float d);
+EASEDEF float EaseQuadOut(float t, float b, float c, float d);
+EASEDEF float EaseQuadInOut(float t, float b, float c, float d);
+EASEDEF float EaseExpoIn(float t, float b, float c, float d);
+EASEDEF float EaseExpoOut(float t, float b, float c, float d);
+EASEDEF float EaseExpoInOut(float t, float b, float c, float d);
+EASEDEF float EaseBackIn(float t, float b, float c, float d);
+EASEDEF float EaseBackOut(float t, float b, float c, float d);
+EASEDEF float EaseBackInOut(float t, float b, float c, float d);
+EASEDEF float EaseBounceOut(float t, float b, float c, float d);
+EASEDEF float EaseBounceIn(float t, float b, float c, float d);
+EASEDEF float EaseBounceInOut(float t, float b, float c, float d);
+EASEDEF float EaseElasticIn(float t, float b, float c, float d);
+EASEDEF float EaseElasticOut(float t, float b, float c, float d);
+EASEDEF float EaseElasticInOut(float t, float b, float c, float d);
 ```

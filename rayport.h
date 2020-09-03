@@ -1,7 +1,7 @@
 // Created by Rabia Alhaffar in 1/September/2020
 // rayport, Awesome raylib wrapper for rayfork, All in a single header without worries!
 // Built for: rayfork v0.9
-// Last update: 2/September/2020
+// Last update: 3/September/2020
 #pragma region
 #ifndef RAYPORT_H
 #define RAYPORT_H
@@ -10,6 +10,7 @@
 
 #define RLAPI RF_API        // Wrap of raylib API name (raylib.h)
 #define RMDEF RF_API        // Wrap of raymath API name (raymath.h)
+#define EASEDEF RF_API      // Wrap of raylib easings API name (easings.h)
 #define DEG2RAD RF_DEG2RAD  // Wrap of DEG2RAD (raylib.h)
 #define RAD2DEF RF_RAD2DEG  // Wrap of RAD2DEG (raylib.h)
 #define PI      RF_PI       // Wrap of PI (raylib.h)
@@ -434,6 +435,8 @@ typedef enum {
 
 // Functions
 // Core
+#define TraceLog(log_type, msg, ...) rf_log_impl(__FILE__, __LINE__, __FUNCTION__, (log_type), (msg), ##__VA_ARGS__)
+
 // Drawing-related functions
 RLAPI void ClearBackground(Color color) { rf_clear(color); }
 RLAPI void BeginDrawing(void) { rf_begin(); }
@@ -487,6 +490,34 @@ RLAPI void DrawCircleSectorLines(Vector2 center, float radius, int startAngle, i
 RLAPI void DrawCircleGradient(int centerX, int centerY, float radius, Color color1, Color color2) { rf_draw_circle_gradient(centerX, centerY, radius, color1, color2); }
 RLAPI void DrawCircleV(Vector2 center, float radius, Color color) { rf_draw_circle_v(center, radius, color); }
 RLAPI void DrawCircleLines(int centerX, int centerY, float radius, Color color) { rf_draw_circle_lines(centerX, centerY, radius, color); }
+RLAPI void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, Color color)
+{
+    if (rf_gfx_check_buffer_limit(3 * 36)) rf_gfx_draw();
+
+    rf_gfx_begin(RF_TRIANGLES);
+    for (int i = 0; i < 360; i += 10)
+    {
+        rf_gfx_color4ub(color.r, color.g, color.b, color.a);
+        rf_gfx_vertex2f(centerX, centerY);
+        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * i) * radiusH, centerY + cosf(DEG2RAD * i) * radiusV);
+        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * (i + 10)) * radiusH, centerY + cosf(DEG2RAD * (i + 10)) * radiusV);
+    }
+    rf_gfx_end();
+}
+RLAPI void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, Color color)
+{
+    if (rf_gfx_check_buffer_limit(3 * 36)) rf_gfx_draw();
+
+    rf_gfx_begin(RF_LINES);
+    for (int i = 0; i < 360; i += 10)
+    {
+        rf_gfx_color4ub(color.r, color.g, color.b, color.a);
+        rf_gfx_vertex2f(centerX, centerY);
+        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * i) * radiusH, centerY + cosf(DEG2RAD * i) * radiusV);
+        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * (i + 10)) * radiusH, centerY + cosf(DEG2RAD * (i + 10)) * radiusV);
+    }
+    rf_gfx_end();
+}
 RLAPI void DrawRing(Vector2 center, float innerRadius, float outerRadius, int startAngle, int endAngle, int segments, Color color) { rf_draw_ring(center, innerRadius, outerRadius, startAngle, endAngle, segments, color); }
 RLAPI void DrawRingLines(Vector2 center, float innerRadius, float outerRadius, int startAngle, int endAngle, int segments, Color color) { rf_draw_ring_lines(center, innerRadius, outerRadius, startAngle, endAngle, segments, color); }
 RLAPI void DrawRectangle(int posX, int posY, int width, int height, Color color) { rf_draw_rectangle(posX, posY, width, height, color); }
@@ -505,6 +536,30 @@ RLAPI void DrawTriangleLines(Vector2 v1, Vector2 v2, Vector2 v3, Color color) { 
 RLAPI void DrawTriangleFan(Vector2* points, int numPoints, Color color) { rf_draw_triangle_fan(points, numPoints, color); }
 RLAPI void DrawTriangleStrip(Vector2* points, int pointsCount, Color color) { rf_draw_triangle_strip(points, pointsCount, color); }
 RLAPI void DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color) { rf_draw_poly(center, sides, radius, rotation, color); }
+RLAPI void DrawPolyLines(Vector2 center, int sides, float radius, float rotation, Color color) {
+    if (sides < 3) sides = 3;
+    float centralAngle = 0.0f;
+
+    if (rf_gfx_check_buffer_limit(4 * (360 / sides))) rf_gfx_draw();
+
+    rf_gfx_push_matrix();
+    rf_gfx_translatef(center.x, center.y, 0.0f);
+    rf_gfx_rotatef(rotation, 0.0f, 0.0f, 1.0f);
+    rf_gfx_begin(RF_LINES);
+    for (int i = 0; i < sides; i++)
+    {
+        rf_gfx_color4ub(color.r, color.g, color.b, color.a);
+
+        rf_gfx_vertex2f(0, 0);
+        rf_gfx_vertex2f(sinf(RF_DEG2RAD * centralAngle) * radius, cosf(RF_DEG2RAD * centralAngle) * radius);
+
+        centralAngle += 360.0f / (float)sides;
+        rf_gfx_vertex2f(sinf(RF_DEG2RAD * centralAngle) * radius, cosf(RF_DEG2RAD * centralAngle) * radius);
+    }
+    rf_gfx_end();
+
+    rf_gfx_pop_matrix();
+}
 
 // Basic shapes collision detection functions
 RLAPI bool CheckCollisionRecs(Rectangle rec1, Rectangle rec2) { return rf_check_collision_recs(rec1, rec2); }
@@ -559,7 +614,70 @@ RLAPI Rectangle GetImageAlphaBorder(Image image, float threshold) { return rf_im
 RLAPI void ImageDrawRectangle(Image* dst, int posX, int posY, int width, int height, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { posX, posY, width, height }, color); }
 RLAPI void ImageDrawRectangleV(Image* dst, Vector2 position, Vector2 size, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { position.x, position.y, size.x, size.y }, color); }
 RLAPI void ImageDrawRectangleRec(Image* dst, Rectangle rec, Color color) { rf_image_draw_rectangle_ez(dst, rec, color); }
+RLAPI void ImageDrawRectangleLines(Image* dst, Rectangle rec, int thick, Color color) { rf_image_draw_rectangle_lines_ez(dst, rec, thick, color); }
 RLAPI void ImageDraw(Image* dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint) { rf_image_draw_ez(dst, src, srcRec, dstRec, tint); }
+RLAPI void ImageClearBackground(Image* dst, Color color)
+{
+    rf_image_draw_rectangle_ez(dst, (rf_rec) { 0, 0, dst->width, dst->height }, color);
+}
+RLAPI void ImageDrawPixel(Image* dst, int x, int y, Color color)
+{
+    rf_image_draw_rectangle_ez(dst, (rf_rec) { x, y, 1, 1 }, color);
+}
+RLAPI void ImageDrawPixelV(Image* dst, Vector2 position, Color color)
+{
+    rf_image_draw_rectangle_ez(dst, (rf_rec) { (int)position.x, (int)position.y, 1, 1 }, color);
+}
+RLAPI void ImageDrawCircle(Image* dst, int centerX, int centerY, int radius, Color color)
+{
+    int x = 0, y = radius;
+    int decesionParameter = 3 - 2 * radius;
+
+    while (y >= x)
+    {
+        ImageDrawPixel(dst, centerX + x, centerY + y, color);
+        ImageDrawPixel(dst, centerX - x, centerY + y, color);
+        ImageDrawPixel(dst, centerX + x, centerY - y, color);
+        ImageDrawPixel(dst, centerX - x, centerY - y, color);
+        ImageDrawPixel(dst, centerX + y, centerY + x, color);
+        ImageDrawPixel(dst, centerX - y, centerY + x, color);
+        ImageDrawPixel(dst, centerX + y, centerY - x, color);
+        ImageDrawPixel(dst, centerX - y, centerY - x, color);
+        x++;
+
+        if (decesionParameter > 0)
+        {
+            y--;
+            decesionParameter = decesionParameter + 4 * (x - y) + 10;
+        }
+        else decesionParameter = decesionParameter + 4 * x + 6;
+    }
+}
+RLAPI void ImageDrawCircleV(Image* dst, Vector2 center, int radius, Color color)
+{
+    ImageDrawCircle(dst, (int)center.x, (int)center.y, radius, color);
+}
+RLAPI void ImageDrawLine(Image* dst, int startPosX, int startPosY, int endPosX, int endPosY, Color color)
+{
+    int m = 2 * (endPosY - startPosY);
+    int slopeError = m - (startPosY - startPosX);
+
+    for (int x = startPosX, y = startPosY; x <= startPosY; x++)
+    {
+        ImageDrawPixel(dst, x, y, color);
+        slopeError += m;
+
+        if (slopeError >= 0)
+        {
+            y++;
+            slopeError -= 2 * (startPosY - startPosX);
+        }
+    }
+}
+RLAPI void ImageDrawLineV(Image* dst, Vector2 start, Vector2 end, Color color)
+{
+    ImageDrawLine(dst, (int)start.x, (int)start.y, (int)end.x, (int)end.y, color);
+}
 
 // Texture loading functions
 RLAPI Texture2D LoadTexture(const char* fileName) { return rf_load_texture_from_file_ez(fileName); }
@@ -583,6 +701,13 @@ RLAPI void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, fl
 RLAPI void DrawTextureRec(Texture2D texture, Rectangle sourceRec, Vector2 position, Color tint) { rf_draw_texture_region(texture, sourceRec, (rf_rec) { sourceRec.x, sourceRec.y, texture.width, texture.height }, (rf_vec2) { 0, 0 }, 0.0, tint); }
 RLAPI void DrawTexturePro(Texture2D texture, Rectangle sourceRec, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_region(texture, sourceRec, destRec, origin, rotation, tint); }
 RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_npatch(texture, nPatchInfo, destRec, origin, rotation, tint); }
+RLAPI void DrawTextureQuad(Texture2D texture, Vector2 tiling, Vector2 offset, Rectangle quad, Color tint)
+{
+    rf_rec source = { offset.x * texture.width, offset.y * texture.height, tiling.x * texture.width, tiling.y * texture.height };
+    rf_vec2 origin = { 0.0f, 0.0f };
+
+    rf_draw_texture_region(texture, source, quad, origin, 0.0f, tint);
+}
 
 // Image/Texture misc functions
 RLAPI int GetPixelDataSize(int width, int height, int format) { return rf_pixel_buffer_size(width, height, format); }
@@ -1123,6 +1248,163 @@ RMDEF void QuaternionToAxisAngle(Quaternion q, Vector3* outAxis, float* outAngle
 RMDEF Quaternion QuaternionFromEuler(float roll, float pitch, float yaw) { return rf_quaternion_from_euler(roll, pitch, yaw); }
 RMDEF Vector3 QuaternionToEuler(Quaternion q) { return rf_quaternion_to_euler(q); }
 RMDEF Quaternion QuaternionTransform(Quaternion q, Matrix mat) { return rf_quaternion_transform(q, mat); }
+
+// raylib easings
+// Linear Easing functions
+EASEDEF float EaseLinearNone(float t, float b, float c, float d) { return (c * t / d + b); }
+EASEDEF float EaseLinearIn(float t, float b, float c, float d) { return (c * t / d + b); }
+EASEDEF float EaseLinearOut(float t, float b, float c, float d) { return (c * t / d + b); }
+EASEDEF float EaseLinearInOut(float t, float b, float c, float d) { return (c * t / d + b); }
+
+// Sine Easing functions
+EASEDEF float EaseSineIn(float t, float b, float c, float d) { return (-c * cosf(t / d * (PI / 2.0f)) + c + b); }
+EASEDEF float EaseSineOut(float t, float b, float c, float d) { return (c * sinf(t / d * (PI / 2.0f)) + b); }
+EASEDEF float EaseSineInOut(float t, float b, float c, float d) { return (-c / 2.0f * (cosf(PI * t / d) - 1.0f) + b); }
+
+// Circular Easing functions
+EASEDEF float EaseCircIn(float t, float b, float c, float d) { t /= d; return (-c * (sqrt(1.0f - t * t) - 1.0f) + b); }
+EASEDEF float EaseCircOut(float t, float b, float c, float d) { t = t / d - 1.0f; return (c * sqrt(1.0f - t * t) + b); }
+EASEDEF float EaseCircInOut(float t, float b, float c, float d)
+{
+    if ((t /= d / 2.0f) < 1.0f) return (-c / 2.0f * (sqrt(1.0f - t * t) - 1.0f) + b);
+    t -= 2.0f; return (c / 2.0f * (sqrt(1.0f - t * t) + 1.0f) + b);
+}
+
+// Cubic Easing functions
+EASEDEF float EaseCubicIn(float t, float b, float c, float d) { t /= d; return (c * t * t * t + b); }
+EASEDEF float EaseCubicOut(float t, float b, float c, float d) { t = t / d - 1.0f; return (c * (t * t * t + 1.0f) + b); }
+EASEDEF float EaseCubicInOut(float t, float b, float c, float d)
+{
+    if ((t /= d / 2.0f) < 1.0f) return (c / 2.0f * t * t * t + b);
+    t -= 2.0f; return (c / 2.0f * (t * t * t + 2.0f) + b);
+}
+
+// Quadratic Easing functions
+EASEDEF float EaseQuadIn(float t, float b, float c, float d) { t /= d; return (c * t * t + b); }
+EASEDEF float EaseQuadOut(float t, float b, float c, float d) { t /= d; return (-c * t * (t - 2.0f) + b); }
+EASEDEF float EaseQuadInOut(float t, float b, float c, float d)
+{
+    if ((t /= d / 2) < 1) return (((c / 2) * (t * t)) + b);
+    return (-c / 2.0f * (((t - 1.0f) * (t - 3.0f)) - 1.0f) + b);
+}
+
+// Exponential Easing functions
+EASEDEF float EaseExpoIn(float t, float b, float c, float d) { return (t == 0.0f) ? b : (c * pow(2.0f, 10.0f * (t / d - 1.0f)) + b); }
+EASEDEF float EaseExpoOut(float t, float b, float c, float d) { return (t == d) ? (b + c) : (c * (-pow(2.0f, -10.0f * t / d) + 1.0f) + b); }
+EASEDEF float EaseExpoInOut(float t, float b, float c, float d)
+{
+    if (t == 0.0f) return b;
+    if (t == d) return (b + c);
+    if ((t /= d / 2.0f) < 1.0f) return (c / 2.0f * pow(2.0f, 10.0f * (t - 1.0f)) + b);
+
+    return (c / 2.0f * (-pow(2.0f, -10.0f * (t - 1.0f)) + 2.0f) + b);
+}
+
+// Back Easing functions
+EASEDEF float EaseBackIn(float t, float b, float c, float d)
+{
+    float s = 1.70158f;
+    float postFix = t /= d;
+    return (c * (postFix)*t * ((s + 1.0f) * t - s) + b);
+}
+
+EASEDEF float EaseBackOut(float t, float b, float c, float d)
+{
+    float s = 1.70158f;
+    t = t / d - 1.0f;
+    return (c * (t * t * ((s + 1.0f) * t + s) + 1.0f) + b);
+}
+
+EASEDEF float EaseBackInOut(float t, float b, float c, float d)
+{
+    float s = 1.70158f;
+    if ((t /= d / 2.0f) < 1.0f)
+    {
+        s *= 1.525f;
+        return (c / 2.0f * (t * t * ((s + 1.0f) * t - s)) + b);
+    }
+
+    float postFix = t -= 2.0f;
+    s *= 1.525f;
+    return (c / 2.0f * ((postFix)*t * ((s + 1.0f) * t + s) + 2.0f) + b);
+}
+
+// Bounce Easing functions
+EASEDEF float EaseBounceOut(float t, float b, float c, float d)
+{
+    if ((t /= d) < (1.0f / 2.75f))
+    {
+        return (c * (7.5625f * t * t) + b);
+    }
+    else if (t < (2.0f / 2.75f))
+    {
+        float postFix = t -= (1.5f / 2.75f);
+        return (c * (7.5625f * (postFix)*t + 0.75f) + b);
+    }
+    else if (t < (2.5 / 2.75))
+    {
+        float postFix = t -= (2.25f / 2.75f);
+        return (c * (7.5625f * (postFix)*t + 0.9375f) + b);
+    }
+    else
+    {
+        float postFix = t -= (2.625f / 2.75f);
+        return (c * (7.5625f * (postFix)*t + 0.984375f) + b);
+    }
+}
+
+EASEDEF float EaseBounceIn(float t, float b, float c, float d) { return (c - EaseBounceOut(d - t, 0.0f, c, d) + b); }
+EASEDEF float EaseBounceInOut(float t, float b, float c, float d)
+{
+    if (t < d / 2.0f) return (EaseBounceIn(t * 2.0f, 0.0f, c, d) * 0.5f + b);
+    else return (EaseBounceOut(t * 2.0f - d, 0.0f, c, d) * 0.5f + c * 0.5f + b);
+}
+
+// Elastic Easing functions
+EASEDEF float EaseElasticIn(float t, float b, float c, float d)
+{
+    if (t == 0.0f) return b;
+    if ((t /= d) == 1.0f) return (b + c);
+
+    float p = d * 0.3f;
+    float a = c;
+    float s = p / 4.0f;
+    float postFix = a * pow(2.0f, 10.0f * (t -= 1.0f));
+
+    return (-(postFix * sinf((t * d - s) * (2.0f * PI) / p)) + b);
+}
+
+EASEDEF float EaseElasticOut(float t, float b, float c, float d)
+{
+    if (t == 0.0f) return b;
+    if ((t /= d) == 1.0f) return (b + c);
+
+    float p = d * 0.3f;
+    float a = c;
+    float s = p / 4.0f;
+
+    return (a * pow(2.0f, -10.0f * t) * sinf((t * d - s) * (2.0f * PI) / p) + c + b);
+}
+
+EASEDEF float EaseElasticInOut(float t, float b, float c, float d)
+{
+    if (t == 0.0f) return b;
+    if ((t /= d / 2.0f) == 2.0f) return (b + c);
+
+    float p = d * (0.3f * 1.5f);
+    float a = c;
+    float s = p / 4.0f;
+
+    if (t < 1.0f)
+    {
+        float postFix = a * pow(2.0f, 10.0f * (t -= 1.0f));
+        return -0.5f * (postFix * sinf((t * d - s) * (2.0f * PI) / p)) + b;
+    }
+
+    float postFix = a * pow(2.0f, -10.0f * (t -= 1.0f));
+
+    return (postFix * sinf((t * d - s) * (2.0f * PI) / p) * 0.5f + c + b);
+}
 
 #endif // RAYPORT_H
 #pragma endregion
