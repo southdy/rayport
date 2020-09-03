@@ -699,8 +699,6 @@ RLAPI void DrawTexture(Texture2D texture, int posX, int posY, Color tint) { rf_d
 RLAPI void DrawTextureV(Texture2D texture, Vector2 position, Color tint) { rf_draw_texture(texture, position.x, position.y, tint); }
 RLAPI void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint) { rf_draw_texture_ex(texture, position.x, position.y, texture.width * scale, texture.height * scale, rotation, tint); }
 RLAPI void DrawTextureRec(Texture2D texture, Rectangle sourceRec, Vector2 position, Color tint) { rf_draw_texture_region(texture, sourceRec, (rf_rec) { sourceRec.x, sourceRec.y, texture.width, texture.height }, (rf_vec2) { 0, 0 }, 0.0, tint); }
-RLAPI void DrawTexturePro(Texture2D texture, Rectangle sourceRec, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_region(texture, sourceRec, destRec, origin, rotation, tint); }
-RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_npatch(texture, nPatchInfo, destRec, origin, rotation, tint); }
 RLAPI void DrawTextureQuad(Texture2D texture, Vector2 tiling, Vector2 offset, Rectangle quad, Color tint)
 {
     rf_rec source = { offset.x * texture.width, offset.y * texture.height, tiling.x * texture.width, tiling.y * texture.height };
@@ -708,6 +706,8 @@ RLAPI void DrawTextureQuad(Texture2D texture, Vector2 tiling, Vector2 offset, Re
 
     rf_draw_texture_region(texture, source, quad, origin, 0.0f, tint);
 }
+RLAPI void DrawTexturePro(Texture2D texture, Rectangle sourceRec, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_region(texture, sourceRec, destRec, origin, rotation, tint); }
+RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_npatch(texture, nPatchInfo, destRec, origin, rotation, tint); }
 
 // Image/Texture misc functions
 RLAPI int GetPixelDataSize(int width, int height, int format) { return rf_pixel_buffer_size(width, height, format); }
@@ -816,6 +816,8 @@ RLAPI void UnloadShader(Shader shader) { rf_gfx_unload_shader(shader); }
 
 RLAPI Shader GetShaderDefault(void) { return rf_get_default_shader(); }
 RLAPI Texture2D GetTextureDefault(void) { return rf_get_default_texture(); }
+RLAPI Texture2D GetShapesTexture(void) { return rf_get_context()->tex_shapes; }
+RLAPI Rectangle GetShapesTextureRec(void) { return rf_get_context()->rec_tex_shapes; }
 RLAPI void SetShapesTexture(Texture2D texture, Rectangle source) { rf_set_shapes_texture(texture, source); }
 
 // Shader configuration functions
@@ -906,6 +908,7 @@ RLAPI void rlNormal3f(float x, float y, float z) { rf_gfx_normal3f(x, y, z); }
 RLAPI void rlColor4ub(byte r, byte g, byte b, byte a) { rf_gfx_color4ub(r, g, b, a); }
 RLAPI void rlColor3f(float x, float y, float z) { rf_gfx_color3f(x, y, z); }
 RLAPI void rlColor4f(float x, float y, float z, float w) { rf_gfx_color4f(x, y, z, w); }
+RLAPI Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view) { rf_unproject(source, projection, view); }
 
 //------------------------------------------------------------------------------------
 // Functions Declaration - OpenGL equivalent functions (common to 1.1, 3.3+, ES2)
@@ -1043,6 +1046,7 @@ RMDEF float3 Vector3ToFloatV(Vector3 v) {
     return buffer;
 }
 RMDEF float* Vector3ToFloat(Vector3 vec) { return Vector3ToFloatV(vec).v; };
+RMDEF Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view) { rf_unproject(source, projection, view); }
 
 RMDEF float MatrixDeterminant(Matrix mat) { return rf_mat_determinant(mat); }
 RMDEF float MatrixTrace(Matrix mat) { return rf_mat_trace(mat); }

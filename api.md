@@ -196,6 +196,7 @@ RLAPI ModelAnimation *LoadModelAnimations(const char *fileName, int *animsCount)
 RLAPI void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);                           // Update model animation pose
 RLAPI void UnloadModelAnimation(ModelAnimation anim);                                                   // Unload animation data
 RLAPI bool IsModelAnimationValid(Model model, ModelAnimation anim);                                     // Check model animation skeleton match
+
 RLAPI Mesh GenMeshPoly(int sides, float radius);                                                        // Generate polygonal mesh
 RLAPI Mesh GenMeshPlane(float width, float length, int resX, int resZ);                                 // Generate plane mesh (with subdivisions)
 RLAPI Mesh GenMeshCube(float width, float height, float length);                                        // Generate cuboid mesh
@@ -234,6 +235,8 @@ RLAPI void UnloadShader(Shader shader);                                   // Unl
 
 RLAPI Shader GetShaderDefault(void);                                      // Get default shader
 RLAPI Texture2D GetTextureDefault(void);                                  // Get default texture
+RLAPI Texture2D GetShapesTexture(void);                                                                   // Get texture to draw shapes
+RLAPI Rectangle GetShapesTextureRec(void);                                                                // Get texture rectangle to draw shapes
 RLAPI void SetShapesTexture(Texture2D texture, Rectangle source);         // Define default texture used to draw shapes
 
 RLAPI int GetShaderLocation(Shader shader, const char *uniformName);      // Get shader uniform location
@@ -270,6 +273,7 @@ RLAPI void rlMultMatrixf(float *matf);                // Multiply the current ma
 RLAPI void rlFrustum(double left, double right, double bottom, double top, double znear, double zfar);
 RLAPI void rlOrtho(double left, double right, double bottom, double top, double znear, double zfar);
 RLAPI void rlViewport(int x, int y, int width, int height); // Set the viewport area
+RLAPI Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view);
 
 RLAPI void rlBegin(int mode);                         // Initialize drawing mode (how to organize vertex)
 RLAPI void rlEnd(void);                               // Finish vertex providing
@@ -379,6 +383,7 @@ RMDEF Vector3 Vector3Max(Vector3 v1, Vector3 v2);
 RMDEF Vector3 Vector3Barycenter(Vector3 p, Vector3 a, Vector3 b, Vector3 c);
 RMDEF float3 Vector3ToFloatV(Vector3 v);
 RMDEF float* Vector3ToFloat(Vector3 vec);
+RMDEF Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view);
 
 RMDEF float MatrixDeterminant(Matrix mat);
 RMDEF float MatrixTrace(Matrix mat);
