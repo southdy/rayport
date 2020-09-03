@@ -611,23 +611,32 @@ RLAPI Color* ImageExtractPalette(Image image, int maxPaletteSize) { return rf_im
 RLAPI Rectangle GetImageAlphaBorder(Image image, float threshold) { return rf_image_alpha_border(image, threshold); }
 
 // Image drawing functions
+RLAPI void ImageClearBackground(Image* dst, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { 0, 0, dst->width, dst->height }, color); }
+RLAPI void ImageDrawPixel(Image* dst, int x, int y, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { x, y, 1, 1 }, color); }
+RLAPI void ImageDrawPixelV(Image* dst, Vector2 position, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { (int)position.x, (int)position.y, 1, 1 }, color); }
+RLAPI void ImageDrawLine(Image* dst, int startPosX, int startPosY, int endPosX, int endPosY, Color color)
+{
+    int m = 2 * (endPosY - startPosY);
+    int slopeError = m - (startPosY - startPosX);
+
+    for (int x = startPosX, y = startPosY; x <= startPosY; x++)
+    {
+        ImageDrawPixel(dst, x, y, color);
+        slopeError += m;
+
+        if (slopeError >= 0)
+        {
+            y++;
+            slopeError -= 2 * (startPosY - startPosX);
+        }
+    }
+}
+RLAPI void ImageDrawLineV(Image* dst, Vector2 start, Vector2 end, Color color) { ImageDrawLine(dst, (int)start.x, (int)start.y, (int)end.x, (int)end.y, color); }
 RLAPI void ImageDrawRectangle(Image* dst, int posX, int posY, int width, int height, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { posX, posY, width, height }, color); }
 RLAPI void ImageDrawRectangleV(Image* dst, Vector2 position, Vector2 size, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { position.x, position.y, size.x, size.y }, color); }
 RLAPI void ImageDrawRectangleRec(Image* dst, Rectangle rec, Color color) { rf_image_draw_rectangle_ez(dst, rec, color); }
 RLAPI void ImageDrawRectangleLines(Image* dst, Rectangle rec, int thick, Color color) { rf_image_draw_rectangle_lines_ez(dst, rec, thick, color); }
 RLAPI void ImageDraw(Image* dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint) { rf_image_draw_ez(dst, src, srcRec, dstRec, tint); }
-RLAPI void ImageClearBackground(Image* dst, Color color)
-{
-    rf_image_draw_rectangle_ez(dst, (rf_rec) { 0, 0, dst->width, dst->height }, color);
-}
-RLAPI void ImageDrawPixel(Image* dst, int x, int y, Color color)
-{
-    rf_image_draw_rectangle_ez(dst, (rf_rec) { x, y, 1, 1 }, color);
-}
-RLAPI void ImageDrawPixelV(Image* dst, Vector2 position, Color color)
-{
-    rf_image_draw_rectangle_ez(dst, (rf_rec) { (int)position.x, (int)position.y, 1, 1 }, color);
-}
 RLAPI void ImageDrawCircle(Image* dst, int centerX, int centerY, int radius, Color color)
 {
     int x = 0, y = radius;
@@ -657,27 +666,7 @@ RLAPI void ImageDrawCircleV(Image* dst, Vector2 center, int radius, Color color)
 {
     ImageDrawCircle(dst, (int)center.x, (int)center.y, radius, color);
 }
-RLAPI void ImageDrawLine(Image* dst, int startPosX, int startPosY, int endPosX, int endPosY, Color color)
-{
-    int m = 2 * (endPosY - startPosY);
-    int slopeError = m - (startPosY - startPosX);
 
-    for (int x = startPosX, y = startPosY; x <= startPosY; x++)
-    {
-        ImageDrawPixel(dst, x, y, color);
-        slopeError += m;
-
-        if (slopeError >= 0)
-        {
-            y++;
-            slopeError -= 2 * (startPosY - startPosX);
-        }
-    }
-}
-RLAPI void ImageDrawLineV(Image* dst, Vector2 start, Vector2 end, Color color)
-{
-    ImageDrawLine(dst, (int)start.x, (int)start.y, (int)end.x, (int)end.y, color);
-}
 
 // Texture loading functions
 RLAPI Texture2D LoadTexture(const char* fileName) { return rf_load_texture_from_file_ez(fileName); }

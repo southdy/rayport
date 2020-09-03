@@ -4,11 +4,14 @@
 
 # 4/September/2020
 
-- Functions wrapped
-  - `RLAPI Texture2D GetShapesTexture(void);`
-  - `RLAPI Rectangle GetShapesTextureRec(void);`
-  - `RLAPI Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view);`
-  - `RMDEF Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view);`
+- More functions wrapped!
+
+```c
+RLAPI Texture2D GetShapesTexture(void);
+RLAPI Rectangle GetShapesTextureRec(void);
+RLAPI Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view);
+RMDEF Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view);
+```
 
 # 3/September/2020
 
