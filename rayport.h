@@ -667,7 +667,6 @@ RLAPI void ImageDrawCircleV(Image* dst, Vector2 center, int radius, Color color)
     ImageDrawCircle(dst, (int)center.x, (int)center.y, radius, color);
 }
 
-
 // Texture loading functions
 RLAPI Texture2D LoadTexture(const char* fileName) { return rf_load_texture_from_file_ez(fileName); }
 RLAPI Texture2D LoadTextureFromImage(Image image) { return rf_load_texture_from_image(image); }
