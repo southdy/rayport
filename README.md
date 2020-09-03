@@ -9,8 +9,8 @@ Note that rayport doesn't require raylib as rayport uses rayfork functions!
 ### Why rayport?
 
 - Port raylib games easily to iOS and Consoles via rayfork!
-- Easy way to save porting time, You just need to write window and input code!
-- More independency to raylib via rayfork (As rayfork can use any window and input backend/library you can use rayport).
+- Easy way to save porting time, You just need to rewrite window and input code (Depending on window and input library will used with rayfork)
+- More independency to raylib code via rayfork (As rayfork can use any window and input library).
 - rayport is written in C99, Making it portable and easy to use anywhere you name it!
 - No compilation needed, Just include `rayport.h` with your game that includes rayfork and all done!
 
