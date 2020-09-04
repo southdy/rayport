@@ -499,8 +499,8 @@ RLAPI void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, C
     {
         rf_gfx_color4ub(color.r, color.g, color.b, color.a);
         rf_gfx_vertex2f(centerX, centerY);
-        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * i) * radiusH, centerY + cosf(DEG2RAD * i) * radiusV);
-        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * (i + 10)) * radiusH, centerY + cosf(DEG2RAD * (i + 10)) * radiusV);
+        rf_gfx_vertex2f(centerX + sinf(RF_DEG2RAD * i) * radiusH, centerY + cosf(RF_DEG2RAD * i) * radiusV);
+        rf_gfx_vertex2f(centerX + sinf(RF_DEG2RAD * (i + 10)) * radiusH, centerY + cosf(RF_DEG2RAD * (i + 10)) * radiusV);
     }
     rf_gfx_end();
 }
@@ -513,8 +513,8 @@ RLAPI void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiu
     {
         rf_gfx_color4ub(color.r, color.g, color.b, color.a);
         rf_gfx_vertex2f(centerX, centerY);
-        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * i) * radiusH, centerY + cosf(DEG2RAD * i) * radiusV);
-        rf_gfx_vertex2f(centerX + sinf(DEG2RAD * (i + 10)) * radiusH, centerY + cosf(DEG2RAD * (i + 10)) * radiusV);
+        rf_gfx_vertex2f(centerX + sinf(RF_DEG2RAD * i) * radiusH, centerY + cosf(RF_DEG2RAD * i) * radiusV);
+        rf_gfx_vertex2f(centerX + sinf(RF_DEG2RAD * (i + 10)) * radiusH, centerY + cosf(RF_DEG2RAD * (i + 10)) * radiusV);
     }
     rf_gfx_end();
 }
