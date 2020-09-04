@@ -7,6 +7,7 @@
 - More functions wrapped!
 
 ```c
+RLAPI void DrawPoint3D(Vector3 position, Color color);
 RLAPI Texture2D GetShapesTexture(void);
 RLAPI Rectangle GetShapesTextureRec(void);
 RLAPI Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view);

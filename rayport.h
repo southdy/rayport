@@ -721,6 +721,19 @@ RLAPI int GetGlyphIndex(Font font, int codepoint) { return rf_get_glyph_index(fo
 // Models
 // Basic geometric 3D shapes drawing functions
 RLAPI void DrawLine3D(Vector3 startPos, Vector3 endPos, Color color) { rf_draw_line3d(startPos, endPos, color); }
+RLAPI void DrawPoint3D(Vector3 position, Color color)
+{
+    if (rf_gfx_check_buffer_limit(8)) rf_gfx_draw();
+
+    rf_gfx_push_matrix();
+    rf_gfx_translatef(position.x, position.y, position.z);
+    rf_gfx_begin(RF_LINES);
+    rf_gfx_color4ub(color.r, color.g, color.b, color.a);
+    rf_gfx_vertex3f(0.0f, 0.0f, 0.0f);
+    rf_gfx_vertex3f(0.0f, 0.0f, 0.1f);
+    rf_gfx_end();
+    rf_gfx_pop_matrix();
+}
 RLAPI void DrawCircle3D(Vector3 center, float radius, Vector3 rotationAxis, float rotationAngle, Color color) { rf_draw_circle3d(center, radius, rotationAxis, rotationAngle, color); }
 RLAPI void DrawCube(Vector3 position, float width, float height, float length, Color color) { rf_draw_cube(position, width, height, length, color); }
 RLAPI void DrawCubeV(Vector3 position, Vector3 size, Color color) { rf_draw_cube(position, size.x, size.y, size.z, color); }
