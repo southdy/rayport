@@ -1,7 +1,7 @@
 // Created by Rabia Alhaffar in 1/September/2020
 // rayport, Awesome raylib wrapper for rayfork, All in a single header without worries!
 // Built for: rayfork v0.9
-// Last update: 4/September/2020
+// Latest update: 4/September/2020
 #pragma region
 #ifndef RAYPORT_H
 #define RAYPORT_H
