@@ -1,12 +1,13 @@
 // Created by Rabia Alhaffar in 1/September/2020
 // rayport, Awesome raylib wrapper for rayfork, All in a single header without worries!
 // Built for: rayfork v0.9
-// Latest update: 4/September/2020
+// Latest update: 9/September/2020
 #pragma region
+
+#ifdef RAYFORK_H
+
 #ifndef RAYPORT_H
 #define RAYPORT_H
-
-#include "rayfork.h"
 
 #define RLAPI RF_API        // Wrap of raylib API name (raylib.h)
 #define RMDEF RF_API        // Wrap of raymath API name (raymath.h)
@@ -1412,4 +1413,5 @@ EASEDEF float EaseElasticInOut(float t, float b, float c, float d)
 }
 
 #endif // RAYPORT_H
+#endif
 #pragma endregion

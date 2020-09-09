@@ -2,6 +2,10 @@
 
 > NOTE: In addition to read the changelog, I recommend you reading the [API](https://github.com/Rabios/rayport/blob/master/api.md) to see list of functions!
 
+# 9/September/2020
+
+- From now if rayfork defined rayport will defined (So no errors cause of `rayfork.h` include will happen)!
+
 # 4/September/2020
 
 - More functions wrapped!
