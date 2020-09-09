@@ -3,7 +3,6 @@
 // Built for: rayfork v0.9
 // Latest update: 9/September/2020
 #pragma region
-
 #ifdef RAYFORK_H
 
 #ifndef RAYPORT_H
@@ -1413,5 +1412,6 @@ EASEDEF float EaseElasticInOut(float t, float b, float c, float d)
 }
 
 #endif // RAYPORT_H
+
 #endif
 #pragma endregion
