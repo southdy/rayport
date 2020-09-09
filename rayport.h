@@ -2,20 +2,26 @@
 // rayport, Awesome raylib wrapper for rayfork, All in a single header without worries!
 // Built for: rayfork v0.9
 // Latest update: 9/September/2020
-#pragma region
+#pragma region rayport
+
+#ifndef RAYLIB_H
 #ifdef RAYFORK_H
 
 #ifndef RAYPORT_H
 #define RAYPORT_H
 
+//----------------------------------------------------------------------------------
+// Some basic defines
+//----------------------------------------------------------------------------------
+#pragma region Some basic defines
 #define RLAPI RF_API        // Wrap of raylib API name (raylib.h)
-#define RMDEF RF_API        // Wrap of raymath API name (raymath.h)
-#define EASEDEF RF_API      // Wrap of raylib easings API name (easings.h)
 #define DEG2RAD RF_DEG2RAD  // Wrap of DEG2RAD (raylib.h)
 #define RAD2DEF RF_RAD2DEG  // Wrap of RAD2DEG (raylib.h)
 #define PI      RF_PI       // Wrap of PI (raylib.h)
+#pragma endregion
 
 // Types
+#pragma region Types
 typedef rf_vec4 Vector4;
 typedef rf_vec3 Vector3;
 typedef rf_vec2 Vector2;
@@ -50,8 +56,10 @@ typedef rf_shader Shader;
 typedef unsigned char byte;
 typedef struct float3 { float v[3]; } float3;
 typedef struct float16 { float v[16]; } float16;
+#pragma endregion
 
 // Colors
+#pragma region Colors
 #define LIGHTGRAY  RF_LIGHTGRAY
 #define GRAY       RF_GRAY
 #define DARKGRAY   RF_DARKGRAY
@@ -78,25 +86,35 @@ typedef struct float16 { float v[16]; } float16;
 #define BLANK      RF_BLANK
 #define MAGENTA    RF_MAGENTA
 #define RAYWHITE   RF_RAYWHITE
+#pragma endregion
 
-// Variables
+//----------------------------------------------------------------------------------
+// Enumerators Definition
+//----------------------------------------------------------------------------------
+#pragma region Enumerators Definition
+
+// Keyboard keys
+#pragma region Keyboard keys
 typedef enum {
+
+    // Alphanumeric keys
+#pragma region Alphanumeric keys
     KEY_SPACE = 32,
     KEY_APOSTROPHE = 39,  /* ' */
     KEY_COMMA = 44,  /* , */
     KEY_MINUS = 45,  /* - */
     KEY_PERIOD = 46,  /* . */
     KEY_SLASH = 47,  /* / */
-    KEY_0 = 48,
-    KEY_1 = 49,
-    KEY_2 = 50,
-    KEY_3 = 51,
-    KEY_4 = 52,
-    KEY_5 = 53,
-    KEY_6 = 54,
-    KEY_7 = 55,
-    KEY_8 = 56,
-    KEY_9 = 57,
+    KEY_ZERO = 48,
+    KEY_ONE = 49,
+    KEY_TWO = 50,
+    KEY_THREE = 51,
+    KEY_FOUR = 52,
+    KEY_FIVE = 53,
+    KEY_SIX = 54,
+    KEY_SEVEN = 55,
+    KEY_EIGHT = 56,
+    KEY_NINE = 57,
     KEY_SEMICOLON = 59,  /* ; */
     KEY_EQUAL = 61,  /* = */
     KEY_A = 65,
@@ -125,10 +143,14 @@ typedef enum {
     KEY_X = 88,
     KEY_Y = 89,
     KEY_Z = 90,
+#pragma endregion
+
+    // Function keys
+#pragma region Function keys
     KEY_LEFT_BRACKET = 91,  /* [ */
     KEY_BACKSLASH = 92,  /* \ */
     KEY_RIGHT_BRACKET = 93,  /* ] */
-    KEY_GRAVE_ACCENT = 96,  /* ` */
+    KEY_GRAVE = 96,  /* ` */
     KEY_WORLD_1 = 161, /* non-US #1 */
     KEY_WORLD_2 = 162, /* non-US #2 */
     KEY_ESCAPE = 256,
@@ -175,6 +197,10 @@ typedef enum {
     KEY_F23 = 312,
     KEY_F24 = 313,
     KEY_F25 = 314,
+#pragma endregion
+
+    // Keypad keys
+#pragma region Keypad keys
     KEY_KP_0 = 320,
     KEY_KP_1 = 321,
     KEY_KP_2 = 322,
@@ -200,9 +226,13 @@ typedef enum {
     KEY_RIGHT_CONTROL = 345,
     KEY_RIGHT_ALT = 346,
     KEY_RIGHT_SUPER = 347,
-    //KEY_MENU = 348,
+    KEY_KB_MENU = 348,
+#pragma endregion
+
 } KeyboardKey;
 
+// Trace log type
+#pragma region Trace log type
 typedef enum {
     LOG_ALL = RF_LOG_TYPE_ALL,
     LOG_DEBUG = RF_LOG_TYPE_DEBUG,
@@ -211,26 +241,39 @@ typedef enum {
     LOG_ERROR = RF_LOG_TYPE_ERROR,
     LOG_NONE = RF_LOG_TYPE_NONE
 } TraceLogType;
+#pragma endregion
 
+// Android buttons
+#pragma region Android buttons
 typedef enum {
     KEY_BACK = 4,
     KEY_MENU = 82,
     KEY_VOLUME_UP = 24,
     KEY_VOLUME_DOWN = 25
 } AndroidButton;
+#pragma endregion
 
+// Mouse buttons
+#pragma region Mouse buttons
 typedef enum {
     MOUSE_LEFT_BUTTON = 0,
     MOUSE_RIGHT_BUTTON = 1,
     MOUSE_MIDDLE_BUTTON = 2
 } MouseButton;
+#pragma endregion
 
+// Gamepad number
+#pragma region Gamepad number
 typedef enum {
     GAMEPAD_PLAYER1 = 0,
     GAMEPAD_PLAYER2 = 1,
     GAMEPAD_PLAYER3 = 2,
     GAMEPAD_PLAYER4 = 3
 } GamepadNumber;
+#pragma endregion
+
+// Gamepad buttons
+#pragma region Gamepad buttons
 
 // NOTE: This are predefined for compatibility with raylib, Not sure if with GLFW!
 typedef enum {
@@ -285,7 +328,10 @@ typedef enum {
     GAMEPAD_AXIS_RIGHT_TRIGGER      // [1..-1] (pressure-level)
 } GamepadAxis;
 
+#pragma endregion
+
 // Shader location point type
+#pragma region Shader location point type
 typedef enum {
     LOC_VERTEX_POSITION = RF_LOC_VERTEX_POSITION,
     LOC_VERTEX_TEXCOORD01 = RF_LOC_VERTEX_TEXCOORD01,
@@ -316,8 +362,10 @@ typedef enum {
 
 #define LOC_MAP_DIFFUSE      LOC_MAP_ALBEDO
 #define LOC_MAP_SPECULAR     LOC_MAP_METALNESS
+#pragma endregion
 
 // Shader uniform data types
+#pragma region Shader uniform data types
 typedef enum {
     UNIFORM_FLOAT = RF_UNIFORM_FLOAT,
     UNIFORM_VEC2 = RF_UNIFORM_VEC2,
@@ -329,8 +377,10 @@ typedef enum {
     UNIFORM_IVEC4 = RF_UNIFORM_IVEC4,
     UNIFORM_SAMPLER2D = RF_UNIFORM_SAMPLER2D
 } ShaderUniformDataType;
+#pragma endregion
 
 // Material map type
+#pragma region Material map type
 typedef enum {
     MAP_ALBEDO = RF_MAP_ALBEDO,       // MAP_DIFFUSE
     MAP_METALNESS = RF_MAP_METALNESS, // MAP_SPECULAR
@@ -347,9 +397,11 @@ typedef enum {
 
 #define MAP_DIFFUSE      MAP_ALBEDO
 #define MAP_SPECULAR     MAP_METALNESS
+#pragma endregion
 
 // Pixel formats
 // NOTE: Support depends on OpenGL version and platform
+#pragma region Pixel formats
 typedef enum {
     UNCOMPRESSED_GRAYSCALE = RF_UNCOMPRESSED_GRAYSCALE,        // 8 bit per pixel (no alpha)
     UNCOMPRESSED_GRAY_ALPHA = RF_UNCOMPRESSED_GRAY_ALPHA,      // 8*2 bpp (2 channels)
@@ -373,10 +425,12 @@ typedef enum {
     COMPRESSED_ASTC_4x4_RGBA = RF_COMPRESSED_ASTC_4x4_RGBA,    // 8 bpp
     COMPRESSED_ASTC_8x8_RGBA = RF_COMPRESSED_ASTC_8x8_RGBA     // 2 bpp
 } PixelFormat;
+#pragma endregion
 
 // Texture parameters: filter mode
 // NOTE 1: Filtering considers mipmaps if available in the texture
 // NOTE 2: Filter is accordingly set for minification and magnification
+#pragma region Texture parameters: filter mode
 typedef enum {
     FILTER_POINT = RF_FILTER_POINT,               // No filter, just pixel aproximation
     FILTER_BILINEAR = RF_FILTER_BILINEAR,                // Linear filtering
@@ -385,8 +439,10 @@ typedef enum {
     FILTER_ANISOTROPIC_8X = RF_FILTER_ANISOTROPIC_8x,          // Anisotropic filtering 8x
     FILTER_ANISOTROPIC_16X = RF_FILTER_ANISOTROPIC_16x,         // Anisotropic filtering 16x
 } TextureFilterMode;
+#pragma endregion
 
 // Cubemap layout type
+#pragma region Cubemap layout type
 typedef enum {
     CUBEMAP_AUTO_DETECT = RF_CUBEMAP_AUTO_DETECT,                    // Automatically detect layout type
     CUBEMAP_LINE_VERTICAL = RF_CUBEMAP_LINE_VERTICAL,                // Layout is defined by a vertical line with faces
@@ -395,23 +451,29 @@ typedef enum {
     CUBEMAP_CROSS_FOUR_BY_THREE = RF_CUBEMAP_CROSS_FOUR_BY_TREE,     // Layout is defined by a 4x3 cross with cubemap faces
     CUBEMAP_PANORAMA = RF_CUBEMAP_PANORAMA                           // Layout is defined by a panorama image (equirectangular map)
 } CubemapLayoutType;
+#pragma endregion
 
 // Texture parameters: wrap mode
+#pragma region Texture parameters: wrap mode
 typedef enum {
     WRAP_REPEAT = RF_WRAP_REPEAT,                 // Repeats texture in tiled mode
     WRAP_CLAMP = RF_WRAP_CLAMP,                   // Clamps texture to edge pixel in tiled mode
     WRAP_MIRROR_REPEAT = RF_WRAP_MIRROR_REPEAT,   // Mirrors and repeats the texture in tiled mode
     WRAP_MIRROR_CLAMP = RF_WRAP_MIRROR_CLAMP      // Mirrors and clamps to border the texture in tiled mode
 } TextureWrapMode;
+#pragma endregion
 
 // Color blending modes (pre-defined)
+#pragma region Color blending modes (pre-defined)
 typedef enum {
     BLEND_ALPHA = RF_BLEND_ALPHA,           // Blend textures considering alpha (default)
     BLEND_ADDITIVE = RF_BLEND_ADDITIVE,     // Blend textures adding colors
     BLEND_MULTIPLIED = RF_BLEND_MULTIPLIED  // Blend textures multiplying colors
 } BlendMode;
+#pragma endregion
 
 // Camera system modes
+#pragma region Camera system modes
 typedef enum {
     CAMERA_CUSTOM = RF_CAMERA_CUSTOM,
     CAMERA_FREE = RF_CAMERA_FREE,
@@ -419,25 +481,34 @@ typedef enum {
     CAMERA_FIRST_PERSON = RF_CAMERA_FIRST_PERSON,
     CAMERA_THIRD_PERSON = RF_CAMERA_THIRD_PERSON
 } CameraMode;
+#pragma endregion
 
 // Camera projection modes
+#pragma region Camera projection modes
 typedef enum {
     CAMERA_PERSPECTIVE = RF_CAMERA_PERSPECTIVE,
     CAMERA_ORTHOGRAPHIC = RF_CAMERA_ORTHOGRAPHIC
 } CameraType;
+#pragma endregion
 
 // Type of n-patch
+#pragma region Type of n-patch
 typedef enum {
     NPT_9PATCH = RF_NPT_9PATCH,
     NPT_3PATCH_VERTICAL = RF_NPT_3PATCH_VERTICAL,
     NPT_3PATCH_HORIZONTAL = RF_NPT_3PATCH_HORIZONTAL
 } NPatchType;
+#pragma endregion
+
+#pragma endregion
 
 // Functions
 // Core
+#pragma region Core
 #define TraceLog(log_type, msg, ...) rf_log_impl(__FILE__, __LINE__, __FUNCTION__, (log_type), (msg), ##__VA_ARGS__)
 
 // Drawing-related functions
+#pragma region Drawing-related functions
 RLAPI void ClearBackground(Color color) { rf_clear(color); }
 RLAPI void BeginDrawing(void) { rf_begin(); }
 RLAPI void EndDrawing(void) { rf_end(); }
@@ -449,18 +520,20 @@ RLAPI void BeginTextureMode(RenderTexture2D target) { rf_begin_render_to_texture
 RLAPI void EndTextureMode(void) { rf_end_render_to_texture(); }
 RLAPI void BeginScissorMode(int x, int y, int width, int height) { rf_begin_scissor_mode(x, y, width, height); }
 RLAPI void EndScissorMode(void) { rf_end_scissor_mode(); }
+#pragma endregion
 
 // Screen-space-related functions
+#pragma region Screen-space-related functions
 RLAPI Ray GetMouseRay(Vector2 mousePosition, Camera camera, int width, int height) { return rf_get_mouse_ray((rf_sizei) { width, height }, mousePosition, camera); }
-
 RLAPI Matrix GetCameraMatrix(Camera camera) { return rf_get_camera_matrix(camera); }
 RLAPI Matrix GetCameraMatrix2D(Camera2D camera) { return rf_get_camera_matrix2d(camera); }
-
 RLAPI Vector2 GetWorldToScreenEx(Vector3 position, Camera camera, int width, int height) { return rf_get_world_to_screen((rf_sizei) { width, height }, position, camera); }
 RLAPI Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera) { return rf_get_world_to_screen2d(position, camera); }
 RLAPI Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera) { return rf_get_screen_to_world2d(position, camera); }
+#pragma endregion
 
 // Color-related functions
+#pragma region Color-related functions
 RLAPI int ColorToInt(Color color) { return rf_color_to_int(color); }
 RLAPI Vector4 ColorNormalize(Color color) { return rf_color_normalize(color); }
 RLAPI Color ColorFromNormalized(Vector4 normalized) { return rf_color_from_normalized(normalized); }
@@ -468,15 +541,21 @@ RLAPI Vector3 ColorToHSV(Color color) { return rf_color_to_hsv(color); }
 RLAPI Color ColorFromHSV(Vector3 hsv) { return rf_color_from_hsv(hsv); }
 RLAPI Color Fade(Color color, float alpha) { return rf_fade(color, alpha); }
 RLAPI Color* ColorAlpha = Fade; // Hack :)
+#pragma endregion
 
 //------------------------------------------------------------------------------------
-// Camera System Functions (Module: camera)
+// Camera System Functions
 //------------------------------------------------------------------------------------
+#pragma region Camera System Functions
 RLAPI void SetCameraMode(Camera cam, int mode, rf_camera3d_state* state) { rf_set_camera3d_mode(state, cam, mode); }
 RLAPI void UpdateCamera(Camera cam, rf_camera3d_state* state, rf_input_state_for_update_camera input_state) { rf_update_camera3d(&cam, state, input_state); }
+#pragma endregion
 
 // Shapes
+#pragma region Shapes
+
 // Basic shapes drawing functions
+#pragma region Basic shapes drawing functions
 RLAPI void DrawPixel(int PosX, int PosY, Color color) { rf_draw_pixel(PosX, PosY, color); }
 RLAPI void DrawPixelV(Vector2 position, Color color) { rf_draw_pixel_v(position, color); }
 RLAPI void DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, Color color) { rf_draw_line(startPosX, startPosY, endPosX, endPosY, color); }
@@ -560,8 +639,10 @@ RLAPI void DrawPolyLines(Vector2 center, int sides, float radius, float rotation
 
     rf_gfx_pop_matrix();
 }
+#pragma endregion
 
 // Basic shapes collision detection functions
+#pragma region Basic shapes collision detection functions
 RLAPI bool CheckCollisionRecs(Rectangle rec1, Rectangle rec2) { return rf_check_collision_recs(rec1, rec2); }
 RLAPI bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, float radius2) { return rf_check_collision_circles(center1, radius1, center2, radius2); }
 RLAPI bool CheckCollisionCircleRec(Vector2 center, float radius, Rectangle rec) { return rf_check_collision_circle_rec(center, radius, rec); }
@@ -569,13 +650,21 @@ RLAPI Rectangle GetCollisionRec(Rectangle rec1, Rectangle rec2) { return rf_get_
 RLAPI bool CheckCollisionPointRec(Vector2 point, Rectangle rec) { return rf_check_collision_point_rec(point, rec); }
 RLAPI bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius) { return rf_check_collision_point_circle(point, center, radius); }
 RLAPI bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Vector2 p3) { return rf_check_collision_point_triangle(point, p1, p2, p3); }
+#pragma endregion
+
+#pragma endregion
 
 // Textures
+#pragma region Textures
+
 // Image loading functions
+#pragma region Image loading functions
 RLAPI Image LoadImage(const char* fileName) { return rf_load_image_from_file_ez(fileName); }
 RLAPI void UnloadImage(Image image) { rf_unload_image_ez(image); }
+#pragma endregion
 
 // Image generation functions
+#pragma region Image generation functions
 RLAPI Image GenImageColor(int width, int height, Color color) { return rf_gen_image_color_ez(width, height, color); }
 RLAPI Image GenImageGradientV(int width, int height, Color top, Color bottom) { return rf_gen_image_gradient_v_ez(width, height, top, bottom); }
 RLAPI Image GenImageGradientH(int width, int height, Color left, Color right) { return rf_gen_image_gradient_h_ez(width, height, left, right); }
@@ -584,8 +673,10 @@ RLAPI Image GenImageChecked(int width, int height, int checksX, int checksY, Col
 RLAPI Image GenImageWhiteNoise(int width, int height, float factor) { return rf_gen_image_white_noise_ez(width, height, factor); }
 RLAPI Image GenImagePerlinNoise(int width, int height, int offsetX, int offsetY, float scale) { return rf_gen_image_perlin_noise_ez(width, height, offsetX, offsetY, scale); }
 RLAPI Image GenImageCellular(int width, int height, int tileSize) { return rf_gen_image_cellular_ez(width, height, tileSize); }
+#pragma endregion
 
 // Image manipulation functions
+#pragma region Image manipulation functions
 RLAPI Image ImageCopy(Image image) { return rf_image_copy_ez(image); }
 RLAPI void ImageFormat(Image image, int newFormat) { rf_image_format_ez(image, newFormat); }
 RLAPI void ImageAlphaMask(Image image, Image alphaMask, void* dst, int dst_size) { rf_image_alpha_mask_to_buffer(image, alphaMask, dst, dst_size); }
@@ -609,8 +700,10 @@ RLAPI void ImageColorBrightness(Image image, int brightness) { rf_image_color_br
 RLAPI void ImageColorReplace(Image image, Color color, Color replace) { rf_image_color_replace(image, color, replace); }
 RLAPI Color* ImageExtractPalette(Image image, int maxPaletteSize) { return rf_image_extract_palette_ez(image, maxPaletteSize).colors; }
 RLAPI Rectangle GetImageAlphaBorder(Image image, float threshold) { return rf_image_alpha_border(image, threshold); }
+#pragma endregion
 
 // Image drawing functions
+#pragma region Image drawing functions
 RLAPI void ImageClearBackground(Image* dst, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { 0, 0, dst->width, dst->height }, color); }
 RLAPI void ImageDrawPixel(Image* dst, int x, int y, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { x, y, 1, 1 }, color); }
 RLAPI void ImageDrawPixelV(Image* dst, Vector2 position, Color color) { rf_image_draw_rectangle_ez(dst, (rf_rec) { (int)position.x, (int)position.y, 1, 1 }, color); }
@@ -666,8 +759,10 @@ RLAPI void ImageDrawCircleV(Image* dst, Vector2 center, int radius, Color color)
 {
     ImageDrawCircle(dst, (int)center.x, (int)center.y, radius, color);
 }
+#pragma endregion
 
 // Texture loading functions
+#pragma region Texture loading functions
 RLAPI Texture2D LoadTexture(const char* fileName) { return rf_load_texture_from_file_ez(fileName); }
 RLAPI Texture2D LoadTextureFromImage(Image image) { return rf_load_texture_from_image(image); }
 RLAPI TextureCubemap LoadTextureCubemap(Image image, int layoutType) { return rf_load_texture_cubemap_from_image_ez(image, layoutType); }
@@ -676,13 +771,17 @@ RLAPI void UnloadTexture(Texture2D texture) { rf_unload_texture(texture); }
 RLAPI void UnloadRenderTexture(RenderTexture2D target) { rf_unload_render_texture(target); }
 RLAPI void UpdateTexture(Texture2D texture, const void* pixels) { rf_update_texture(texture, pixels, 1); }
 RLAPI Image GetScreenData(void) { return rf_get_screen_data_ez(); }
+#pragma endregion
 
 // Texture configuration functions
+#pragma region Texture configuration functions
 RLAPI void GenTextureMipmaps(Texture2D* texture) { rf_gen_texture_mipmaps(texture); }
 RLAPI void SetTextureFilter(Texture2D texture, int filterMode) { rf_set_texture_filter(texture, filterMode); }
 RLAPI void SetTextureWrap(Texture2D texture, int wrapMode) { rf_set_texture_wrap(texture, wrapMode); }
+#pragma endregion
 
 // Texture drawing functions
+#pragma region Texture drawing functions
 RLAPI void DrawTexture(Texture2D texture, int posX, int posY, Color tint) { rf_draw_texture(texture, posX, posY, tint); }
 RLAPI void DrawTextureV(Texture2D texture, Vector2 position, Color tint) { rf_draw_texture(texture, position.x, position.y, tint); }
 RLAPI void DrawTextureEx(Texture2D texture, Vector2 position, float rotation, float scale, Color tint) { rf_draw_texture_ex(texture, position.x, position.y, texture.width * scale, texture.height * scale, rotation, tint); }
@@ -696,30 +795,48 @@ RLAPI void DrawTextureQuad(Texture2D texture, Vector2 tiling, Vector2 offset, Re
 }
 RLAPI void DrawTexturePro(Texture2D texture, Rectangle sourceRec, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_region(texture, sourceRec, destRec, origin, rotation, tint); }
 RLAPI void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle destRec, Vector2 origin, float rotation, Color tint) { rf_draw_texture_npatch(texture, nPatchInfo, destRec, origin, rotation, tint); }
+#pragma endregion
 
 // Image/Texture misc functions
+#pragma region Image/Texture misc functions
 RLAPI int GetPixelDataSize(int width, int height, int format) { return rf_pixel_buffer_size(width, height, format); }
+#pragma endregion
+
+#pragma endregion
 
 // Text
+#pragma region Text
+
 // Font loading/unloading functions
+#pragma region Font loading/unloading functions
 RLAPI Font GetFontDefault(void) { return rf_get_default_font(); }
 RLAPI Font LoadFont(const char* fileName, int fontSize) { return rf_load_ttf_font_from_file_ez(fileName, RF_DEFAULT_FONT_SIZE, RF_FONT_ANTIALIAS); }
 RLAPI Font LoadFontEx(const char* fileName, int fontSize, int* fontChars, int charsCount) { return rf_load_ttf_font_from_data_ez(fileName, fontSize, RF_FONT_ANTIALIAS, fontChars, charsCount); }
 RLAPI Font LoadFontFromImage(Image image, Color key, int firstChar) { return rf_load_image_font_ez(image, key); }
 RLAPI void UnloadFont(Font font) { rf_unload_font_ez(font); }
+#pragma endregion
 
 // Text drawing functions
+#pragma region Text drawing functions
 RLAPI void DrawText(const char* text, int posX, int posY, int fontSize, Color color) { rf_draw_text(text, posX, posY, fontSize, color); }
 RLAPI void DrawTextEx(Font font, const char* text, Vector2 position, float fontSize, float spacing, Color tint) { rf_draw_text_ex(font, text, position, fontSize, spacing, tint); }
 RLAPI void DrawTextRec(Font font, const char* text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint) { rf_draw_text_rec(font, text, rec, fontSize, spacing, wordWrap, tint); }
+#pragma endregion
 
 // Text misc. functions
+#pragma region Text misc. functions
 RLAPI int MeasureText(const char* text, int fontSize) { return rf_measure_text(rf_get_default_font(), text, fontSize, 0.0f).width; }
 RLAPI Vector2 MeasureTextEx(Font font, const char* text, float fontSize, float spacing) { rf_measure_text(font, text, fontSize, spacing); }
 RLAPI int GetGlyphIndex(Font font, int codepoint) { return rf_get_glyph_index(font, codepoint); }
+#pragma endregion
+
+#pragma endregion
 
 // Models
+#pragma region Models
+
 // Basic geometric 3D shapes drawing functions
+#pragma region Basic geometric third-dimension shapes drawing functions
 RLAPI void DrawLine3D(Vector3 startPos, Vector3 endPos, Color color) { rf_draw_line3d(startPos, endPos, color); }
 RLAPI void DrawPoint3D(Vector3 position, Color color)
 {
@@ -749,16 +866,22 @@ RLAPI void DrawPlane(Vector3 centerPos, Vector2 size, Color color) { rf_draw_pla
 RLAPI void DrawRay(Ray ray, Color color) { rf_draw_ray(ray, color); }
 RLAPI void DrawGrid(int slices, float spacing) { rf_draw_grid(slices, spacing); }
 RLAPI void DrawGizmo(Vector3 position) { rf_draw_gizmo(position); }
+#pragma endregion
 
 // Model loading/unloading functions
+#pragma region Model loading/unloading functions
 RLAPI Model LoadModel(const char* fileName) { return rf_load_model_ez(fileName); }
 RLAPI Model LoadModelFromMesh(Mesh mesh) { return rf_load_model_from_mesh_ez(mesh); }
 RLAPI void UnloadModel(Model model) { rf_unload_model_ez(model); }
+#pragma endregion
 
 // Mesh loading/unloading functions
+#pragma region Mesh loading/unloading functions
 RLAPI void UnloadMesh(Mesh mesh) { rf_unload_mesh_ez(mesh); }
+#pragma endregion
 
 // Material loading/unloading functions
+#pragma region Material loading/unloading functions
 RLAPI Material LoadMaterialDefault(void) { return rf_load_default_material_ez(); }
 RLAPI rf_materials_array LoadMaterials(const char* fileName) { return rf_load_materials_from_mtl_ez(&fileName); }
 RLAPI void UnloadMaterial(Material material) { rf_unload_material_ez(material); }
@@ -766,14 +889,18 @@ RLAPI void SetMaterialTexture(Material* material, int mapType, Texture2D texture
 RLAPI void SetModelMeshMaterial(Model* model, int meshId, int materialId) {
     if (!(meshId >= model->mesh_count) && !(materialId >= model->material_count)) model->mesh_material[meshId] = materialId;
 }
+#pragma endregion
 
 // Model animations loading/unloading functions
+#pragma region Model animations loading/unloading functions
 RLAPI ModelAnimation* LoadModelAnimations(const char* fileName, int* animsCount) { rf_load_model_animations_from_iqm_ez(fileName, animsCount); }
 RLAPI void UpdateModelAnimation(Model model, ModelAnimation anim, int frame) { rf_update_model_animation(model, anim, frame); }
 RLAPI void UnloadModelAnimation(ModelAnimation anim) { rf_unload_model_animation_ez(anim); }
 RLAPI bool IsModelAnimationValid(Model model, ModelAnimation anim) { return rf_is_model_animation_valid(model, anim); }
+#pragma endregion
 
 // Mesh generation functions
+#pragma region Mesh generation functions
 RLAPI Mesh GenMeshPoly(int sides, float radius) { return rf_gen_mesh_poly_ez(sides, radius); }
 RLAPI Mesh GenMeshPlane(float width, float length, int resX, int resZ) { return rf_gen_mesh_plane_ez(width, length, resX, resZ); }
 RLAPI Mesh GenMeshCube(float width, float height, float length) { return rf_gen_mesh_cube_ez(width, height, length); }
@@ -784,13 +911,17 @@ RLAPI Mesh GenMeshTorus(float radius, float size, int radSeg, int sides) { retur
 RLAPI Mesh GenMeshKnot(float radius, float size, int radSeg, int sides) { return rf_gen_mesh_knot_ez(radius, size, radSeg, sides); }
 RLAPI Mesh GenMeshHeightmap(Image heightmap, Vector3 size) { return rf_gen_mesh_heightmap_ez(heightmap, size); }
 RLAPI Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize) { return rf_gen_mesh_cubicmap_ez(cubicmap, cubeSize); }
+#pragma endregion
 
 // Mesh manipulation functions
+#pragma region Mesh manipulation functions
 RLAPI BoundingBox MeshBoundingBox(Mesh mesh) { return rf_mesh_bounding_box(mesh); }
 RLAPI void MeshTangents(Mesh* mesh) { rf_mesh_compute_tangents_ez(mesh); }
 RLAPI void MeshBinormals(Mesh* mesh) { rf_mesh_compute_binormals(mesh); }
+#pragma endregion
 
 // Model drawing functions
+#pragma region Model drawing functions
 RLAPI void DrawModel(Model model, Vector3 position, float scale, Color tint) { rf_draw_model(model, position, scale, tint); }
 RLAPI void DrawModelEx(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint) { rf_draw_model_ex(model, position, rotationAxis, rotationAngle, scale, tint); }
 RLAPI void DrawModelWires(Model model, Vector3 position, float scale, Color tint) { rf_draw_model_wires(model, position, (rf_vec3) { 0, 0, 0 }, 0, (rf_vec3) { scale, scale, scale }, tint); }
@@ -798,8 +929,10 @@ RLAPI void DrawModelWiresEx(Model model, Vector3 position, Vector3 rotationAxis,
 RLAPI void DrawBoundingBox(BoundingBox box, Color color) { rf_draw_bounding_box(box, color); }
 RLAPI void DrawBillboard(Camera camera, Texture2D texture, Vector3 center, float size, Color tint) { rf_draw_billboard(camera, texture, center, size, tint); }
 RLAPI void DrawBillboardRec(Camera camera, Texture2D texture, Rectangle sourceRec, Vector3 center, float size, Color tint) { rf_draw_billboard_rec(camera, texture, sourceRec, center, size, tint); }
+#pragma endregion
 
 // Collision detection functions
+#pragma region Collision detection functions
 RLAPI bool CheckCollisionSpheres(Vector3 centerA, float radiusA, Vector3 centerB, float radiusB) { return rf_check_collision_spheres(centerA, radiusA, centerB, radiusB); }
 RLAPI bool CheckCollisionBoxes(BoundingBox box1, BoundingBox box2) { return rf_check_collision_boxes(box1, box2); }
 RLAPI bool CheckCollisionBoxSphere(BoundingBox box, Vector3 center, float radius) { return rf_check_collision_box_sphere(box, center, radius); }
@@ -809,19 +942,26 @@ RLAPI bool CheckCollisionRayBox(Ray ray, BoundingBox box) { return rf_check_coll
 RLAPI RayHitInfo GetCollisionRayModel(Ray ray, Model model) { return rf_collision_ray_model(ray, model); }
 RLAPI RayHitInfo GetCollisionRayTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3) { return rf_collision_ray_triangle(ray, p1, p2, p3); }
 RLAPI RayHitInfo GetCollisionRayGround(Ray ray, float groundHeight) { return rf_collision_ray_ground(ray, groundHeight); }
+#pragma endregion
+
+#pragma endregion
 
 // Shaders
+#pragma region Shaders
+
 // Shader loading/unloading functions
+#pragma region Shader loading/unloading functions
 RLAPI Shader LoadShaderCode(char* vsCode, char* fsCode) { return rf_gfx_load_shader(vsCode, fsCode); }
 RLAPI void UnloadShader(Shader shader) { rf_gfx_unload_shader(shader); }
-
 RLAPI Shader GetShaderDefault(void) { return rf_get_default_shader(); }
 RLAPI Texture2D GetTextureDefault(void) { return rf_get_default_texture(); }
 RLAPI Texture2D GetShapesTexture(void) { return rf_get_context()->tex_shapes; }
 RLAPI Rectangle GetShapesTextureRec(void) { return rf_get_context()->rec_tex_shapes; }
 RLAPI void SetShapesTexture(Texture2D texture, Rectangle source) { rf_set_shapes_texture(texture, source); }
+#pragma endregion
 
 // Shader configuration functions
+#pragma region Shader configuration functions
 RLAPI int GetShaderLocation(Shader shader, const char* uniformName) { return rf_gfx_get_shader_location(shader, uniformName); }
 RLAPI void SetShaderValue(Shader shader, int uniformLoc, const void* value, int uniformType) { rf_gfx_set_shader_value(shader, uniformLoc, value, uniformType); }
 RLAPI void SetShaderValueV(Shader shader, int uniformLoc, const void* value, int uniformType, int count) { rf_gfx_set_shader_value_v(shader, uniformLoc, value, uniformType, count); }
@@ -831,26 +971,36 @@ RLAPI void SetMatrixProjection(Matrix proj) { rf_gfx_set_matrix_projection(proj)
 RLAPI void SetMatrixModelview(Matrix view) { rf_gfx_set_matrix_modelview(view); }
 RLAPI Matrix GetMatrixModelview(void) { return rf_gfx_get_matrix_modelview(); }
 RLAPI Matrix GetMatrixProjection(void) { return rf_gfx_get_matrix_projection(); }
+#pragma endregion
 
 // Texture maps generation (PBR)
+#pragma region Texture maps generation (PBR)
 RLAPI Texture2D GenTextureCubemap(Shader shader, Texture2D map, int size) { return rf_gen_texture_cubemap(shader, map, size); }
 RLAPI Texture2D GenTextureIrradiance(Shader shader, Texture2D cubemap, int size) { return rf_gen_texture_irradiance(shader, cubemap, size); }
 RLAPI Texture2D GenTexturePrefilter(Shader shader, Texture2D cubemap, int size) { return rf_gen_texture_prefilter(shader, cubemap, size); }
 RLAPI Texture2D GenTextureBRDF(Shader shader, int size) { return rf_gen_texture_brdf(shader, size); }
+#pragma endregion
 
 // Shading begin/end functions
+#pragma region Shading begin/end functions
 RLAPI void BeginShaderMode(Shader shader) { rf_begin_shader(shader); }
 RLAPI void EndShaderMode(void) { rf_end_shader(); }
 RLAPI void BeginBlendMode(int mode) { rf_gfx_blend_mode(mode); }
 RLAPI void EndBlendMode(void) { rf_end_blend_mode(); }
+#pragma endregion
+
+#pragma endregion
 
 // VR module will wrapped once rayfork supports it!
 // Audio module will wrapped once rayfork supports it!
 
 // RLGL
+#pragma region RLGL
+
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
+#pragma region Defines and Macros
 enum {
     DEFAULT_BATCH_BUFFER_ELEMENTS = RF_DEFAULT_BATCH_ELEMENTS_COUNT,
     DEFAULT_BATCH_BUFFERS = RF_DEFAULT_BATCH_VERTEX_BUFFERS_COUNT,
@@ -880,10 +1030,12 @@ enum {
     RL_TRIANGLES = RF_TRIANGLES,
     RL_QUADS = RF_QUADS
 };
+#pragma endregion
 
 //------------------------------------------------------------------------------------
 // Functions Declaration - Matrix operations
 //------------------------------------------------------------------------------------
+#pragma region Functions Declaration - Matrix operations
 RLAPI void rlMatrixMode(int mode) { rf_gfx_matrix_mode(mode); }
 RLAPI void rlPushMatrix(void) { rf_gfx_push_matrix(); }
 RLAPI void rlPopMatrix(void) { rf_gfx_pop_matrix(); }
@@ -895,10 +1047,12 @@ RLAPI void rlMultMatrixf(float* matf) { rf_gfx_mult_matrixf(matf); }
 RLAPI void rlFrustum(double left, double right, double bottom, double top, double znear, double zfar) { rf_gfx_frustum(left, right, bottom, top, znear, zfar); }
 RLAPI void rlOrtho(double left, double right, double bottom, double top, double znear, double zfar) { rf_gfx_ortho(left, right, bottom, top, znear, zfar); }
 RLAPI void rlViewport(int x, int y, int width, int height) { rf_gfx_viewport(x, y, width, height); }
+#pragma endregion
 
 //------------------------------------------------------------------------------------
 // Functions Declaration - Vertex level operations
 //------------------------------------------------------------------------------------
+#pragma region Functions Declaration - Vertex level operations
 RLAPI void rlBegin(int mode) { rf_gfx_begin(mode); }
 RLAPI void rlEnd(void) { rf_gfx_end(); }
 RLAPI void rlVertex2i(int x, int y) { rf_gfx_vertex2i(x, y); }
@@ -910,10 +1064,12 @@ RLAPI void rlColor4ub(byte r, byte g, byte b, byte a) { rf_gfx_color4ub(r, g, b,
 RLAPI void rlColor3f(float x, float y, float z) { rf_gfx_color3f(x, y, z); }
 RLAPI void rlColor4f(float x, float y, float z, float w) { rf_gfx_color4f(x, y, z, w); }
 RLAPI Vector3 rlUnproject(Vector3 source, Matrix projection, Matrix view) { rf_unproject(source, projection, view); }
+#pragma endregion
 
 //------------------------------------------------------------------------------------
 // Functions Declaration - OpenGL equivalent functions (common to 1.1, 3.3+, ES2)
 //------------------------------------------------------------------------------------
+#pragma region Functions Declaration - OpenGL equivalent functions (common to 1.1, 3.3+, ES2)
 RLAPI void rlEnableTexture(unsigned int id) { rf_gfx_enable_texture(id); }
 RLAPI void rlDisableTexture(void) { rf_gfx_disable_texture(); }
 RLAPI void rlTextureParameters(unsigned int id, int param, int value) { }
@@ -937,10 +1093,12 @@ RLAPI void rlClearColor(byte r, byte g, byte b, byte a) { rf_gfx_clear_color(r, 
 RLAPI void rlClearScreenBuffers(void) { rf_gfx_clear_screen_buffers(); }
 RLAPI void rlUpdateBuffer(int bufferId, void* data, int dataSize) { rf_gfx_update_buffer(bufferId, data, dataSize); }
 RLAPI unsigned int rlLoadAttribBuffer(unsigned int vaoId, int shaderLoc, void* buffer, int size, bool dynamic) { return rf_gfx_load_attrib_buffer(vaoId, shaderLoc, buffer, size, dynamic); }
+#pragma endregion
 
 //------------------------------------------------------------------------------------
 // Functions Declaration - rlgl functionality
 //------------------------------------------------------------------------------------
+#pragma region Functions Declaration - rlgl functionality
 RLAPI void rlglClose(void) { rf_gfx_close(); }
 RLAPI void rlglDraw(void) { rf_gfx_draw(); }
 
@@ -948,6 +1106,7 @@ RLAPI bool rlCheckBufferLimit(int vCount) { return rf_gfx_check_buffer_limit(vCo
 RLAPI void rlSetDebugMarker(const char* text) { rf_gfx_set_debug_marker(text); }
 
 // Textures data management
+#pragma region Textures data management
 RLAPI unsigned int rlLoadTexture(void* data, int width, int height, int format, int mipmapCount) { return rf_gfx_load_texture(data, width, height, format, mipmapCount); }
 RLAPI unsigned int rlLoadTextureDepth(int width, int height, int bits, bool useRenderBuffer) { return rf_gfx_load_texture_depth(width, height, bits, useRenderBuffer); }
 RLAPI unsigned int rlLoadTextureCubemap(void* data, int size, int format) { return rf_gfx_load_texture_cubemap(data, size, format); }
@@ -957,23 +1116,44 @@ RLAPI void rlUnloadTexture(unsigned int id) { rf_gfx_unload_texture(id); }
 RLAPI void rlGenerateMipmaps(Texture2D* texture) { rf_gfx_generate_mipmaps(texture); }
 RLAPI void* rlReadTexturePixels(Texture2D texture) { rf_gfx_read_texture_pixels_ez(texture); }
 RLAPI unsigned char* rlReadScreenPixels(int width, int height, Color* dstColor) { rf_gfx_read_screen_pixels(dstColor, width, height); }
+#pragma endregion
 
 // Render texture management (fbo)
+#pragma region Render texture management (fbo)
 RLAPI RenderTexture2D rlLoadRenderTexture(int width, int height, int format, int depthBits, bool useDepthTexture) { return rf_gfx_load_render_texture(width, height, format, depthBits, useDepthTexture); }
 RLAPI void rlRenderTextureAttach(RenderTexture target, unsigned int id, int attachType) { rf_gfx_render_texture_attach(target, id, attachType); }
 RLAPI bool rlRenderTextureComplete(RenderTexture target) { return rf_gfx_render_texture_complete(target); }
+#pragma endregion
 
 // Vertex data management
+#pragma Vertex data management
 RLAPI void rlLoadMesh(Mesh* mesh, bool dynamic) { rf_gfx_load_mesh(mesh, dynamic); }
 RLAPI void rlUpdateMesh(Mesh mesh, int buffer, int count) { rf_gfx_update_mesh(mesh, buffer, count); }
 RLAPI void rlUpdateMeshAt(Mesh mesh, int buffer, int count, int index) { rf_gfx_update_mesh_at(mesh, buffer, count, index); }
 RLAPI void rlDrawMesh(Mesh mesh, Material material, Matrix transform) { rf_gfx_draw_mesh(mesh, material, transform); }
 RLAPI void rlUnloadMesh(Mesh mesh) { rf_gfx_unload_mesh(mesh); }
+#pragma endregion
 
-// raymath library
+#pragma endregion
+
+// raymath.h
+#pragma region raymath
+
+#ifndef RAYMATH_H
+#define RMDEF RF_API        // Wrap of raymath API name (raymath.h)
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Utils math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Utils math
 RMDEF float Clamp(float value, float min, float max) { return rf_clamp(value, min, max); }
 RMDEF float Lerp(float start, float end, float amount) { return rf_lerp(start, end, amount); }
+#pragma endregion
 
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Vector2 math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Vector2 math
 RMDEF Vector2 Vector2Zero(void) { return (Vector2) { 0, 0 }; }
 RMDEF Vector2 Vector2One(void) { return (Vector2) { 1, 1 }; }
 RMDEF Vector2 Vector2Add(Vector2 v1, Vector2 v2) { return rf_vec2_add(v1, v2); }
@@ -1011,7 +1191,12 @@ RMDEF Vector2 Vector2MoveTowards(Vector2 v, Vector2 target, float maxDistance) {
 
     return result;
 }
+#pragma endregion
 
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Vector3 math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Vector3 math
 RMDEF Vector3 Vector3Zero(void) { return (Vector3) { 0, 0, 0 }; }
 RMDEF Vector3 Vector3One(void) { return (Vector3) { 1, 1, 1 }; }
 RMDEF Vector3 Vector3Add(Vector3 v1, Vector3 v2) { return rf_vec3_add(v1, v2); }
@@ -1048,7 +1233,12 @@ RMDEF float3 Vector3ToFloatV(Vector3 v) {
 }
 RMDEF float* Vector3ToFloat(Vector3 vec) { return Vector3ToFloatV(vec).v; };
 RMDEF Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view) { rf_unproject(source, projection, view); }
+#pragma endregion
 
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Matrix math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Matrix math
 RMDEF float MatrixDeterminant(Matrix mat) { return rf_mat_determinant(mat); }
 RMDEF float MatrixTrace(Matrix mat) { return rf_mat_trace(mat); }
 RMDEF Matrix MatrixTranspose(Matrix mat) { return rf_mat_transpose(mat); }
@@ -1092,7 +1282,12 @@ RMDEF float16 MatrixToFloatV(Matrix mat) {
     return buffer;
 }
 RMDEF float* MatrixToFloat(Matrix mat) { return MatrixToFloatV(mat).v; }
+#pragma endregion
 
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Quaternion math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Quaternion math
 RMDEF Quaternion QuaternionAdd(Quaternion q1, Quaternion q2) {
     Quaternion result = { q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w };
     return result;
@@ -1253,20 +1448,34 @@ RMDEF void QuaternionToAxisAngle(Quaternion q, Vector3* outAxis, float* outAngle
 RMDEF Quaternion QuaternionFromEuler(float roll, float pitch, float yaw) { return rf_quaternion_from_euler(roll, pitch, yaw); }
 RMDEF Vector3 QuaternionToEuler(Quaternion q) { return rf_quaternion_to_euler(q); }
 RMDEF Quaternion QuaternionTransform(Quaternion q, Matrix mat) { return rf_quaternion_transform(q, mat); }
+#pragma endregion
+
+#pragma endregion
+#endif
 
 // raylib easings
+#pragma region easings
+
+#ifndef EASINGS_H
+#define EASEDEF RF_API      // Wrap of raylib easings API name (easings.h)
+
 // Linear Easing functions
+#pragma region Linear Easing functions
 EASEDEF float EaseLinearNone(float t, float b, float c, float d) { return (c * t / d + b); }
 EASEDEF float EaseLinearIn(float t, float b, float c, float d) { return (c * t / d + b); }
 EASEDEF float EaseLinearOut(float t, float b, float c, float d) { return (c * t / d + b); }
 EASEDEF float EaseLinearInOut(float t, float b, float c, float d) { return (c * t / d + b); }
+#pragma endregion
 
 // Sine Easing functions
+#pragma region Sine Easing functions
 EASEDEF float EaseSineIn(float t, float b, float c, float d) { return (-c * cosf(t / d * (PI / 2.0f)) + c + b); }
 EASEDEF float EaseSineOut(float t, float b, float c, float d) { return (c * sinf(t / d * (PI / 2.0f)) + b); }
 EASEDEF float EaseSineInOut(float t, float b, float c, float d) { return (-c / 2.0f * (cosf(PI * t / d) - 1.0f) + b); }
+#pragma endregion
 
 // Circular Easing functions
+#pragma region Circular Easing functions
 EASEDEF float EaseCircIn(float t, float b, float c, float d) { t /= d; return (-c * (sqrt(1.0f - t * t) - 1.0f) + b); }
 EASEDEF float EaseCircOut(float t, float b, float c, float d) { t = t / d - 1.0f; return (c * sqrt(1.0f - t * t) + b); }
 EASEDEF float EaseCircInOut(float t, float b, float c, float d)
@@ -1274,8 +1483,10 @@ EASEDEF float EaseCircInOut(float t, float b, float c, float d)
     if ((t /= d / 2.0f) < 1.0f) return (-c / 2.0f * (sqrt(1.0f - t * t) - 1.0f) + b);
     t -= 2.0f; return (c / 2.0f * (sqrt(1.0f - t * t) + 1.0f) + b);
 }
+#pragma endregion
 
 // Cubic Easing functions
+#pragma region Cubic Easing functions
 EASEDEF float EaseCubicIn(float t, float b, float c, float d) { t /= d; return (c * t * t * t + b); }
 EASEDEF float EaseCubicOut(float t, float b, float c, float d) { t = t / d - 1.0f; return (c * (t * t * t + 1.0f) + b); }
 EASEDEF float EaseCubicInOut(float t, float b, float c, float d)
@@ -1283,8 +1494,10 @@ EASEDEF float EaseCubicInOut(float t, float b, float c, float d)
     if ((t /= d / 2.0f) < 1.0f) return (c / 2.0f * t * t * t + b);
     t -= 2.0f; return (c / 2.0f * (t * t * t + 2.0f) + b);
 }
+#pragma endregion
 
 // Quadratic Easing functions
+#pragma region Quadratic Easing functions
 EASEDEF float EaseQuadIn(float t, float b, float c, float d) { t /= d; return (c * t * t + b); }
 EASEDEF float EaseQuadOut(float t, float b, float c, float d) { t /= d; return (-c * t * (t - 2.0f) + b); }
 EASEDEF float EaseQuadInOut(float t, float b, float c, float d)
@@ -1292,8 +1505,10 @@ EASEDEF float EaseQuadInOut(float t, float b, float c, float d)
     if ((t /= d / 2) < 1) return (((c / 2) * (t * t)) + b);
     return (-c / 2.0f * (((t - 1.0f) * (t - 3.0f)) - 1.0f) + b);
 }
+#pragma endregion
 
 // Exponential Easing functions
+#pragma region Exponential Easing functions
 EASEDEF float EaseExpoIn(float t, float b, float c, float d) { return (t == 0.0f) ? b : (c * pow(2.0f, 10.0f * (t / d - 1.0f)) + b); }
 EASEDEF float EaseExpoOut(float t, float b, float c, float d) { return (t == d) ? (b + c) : (c * (-pow(2.0f, -10.0f * t / d) + 1.0f) + b); }
 EASEDEF float EaseExpoInOut(float t, float b, float c, float d)
@@ -1304,8 +1519,10 @@ EASEDEF float EaseExpoInOut(float t, float b, float c, float d)
 
     return (c / 2.0f * (-pow(2.0f, -10.0f * (t - 1.0f)) + 2.0f) + b);
 }
+#pragma endregion
 
 // Back Easing functions
+#pragma region Back Easing functions
 EASEDEF float EaseBackIn(float t, float b, float c, float d)
 {
     float s = 1.70158f;
@@ -1333,8 +1550,10 @@ EASEDEF float EaseBackInOut(float t, float b, float c, float d)
     s *= 1.525f;
     return (c / 2.0f * ((postFix)*t * ((s + 1.0f) * t + s) + 2.0f) + b);
 }
+#pragma endregion
 
 // Bounce Easing functions
+#pragma region Bounce Easing functions
 EASEDEF float EaseBounceOut(float t, float b, float c, float d)
 {
     if ((t /= d) < (1.0f / 2.75f))
@@ -1364,8 +1583,10 @@ EASEDEF float EaseBounceInOut(float t, float b, float c, float d)
     if (t < d / 2.0f) return (EaseBounceIn(t * 2.0f, 0.0f, c, d) * 0.5f + b);
     else return (EaseBounceOut(t * 2.0f - d, 0.0f, c, d) * 0.5f + c * 0.5f + b);
 }
+#pragma endregion
 
 // Elastic Easing functions
+#pragma region Elastic Easing functions
 EASEDEF float EaseElasticIn(float t, float b, float c, float d)
 {
     if (t == 0.0f) return b;
@@ -1410,8 +1631,13 @@ EASEDEF float EaseElasticInOut(float t, float b, float c, float d)
 
     return (postFix * sinf((t * d - s) * (2.0f * PI) / p) * 0.5f + c + b);
 }
-
-#endif // RAYPORT_H
+#pragma endregion
 
 #endif
+#pragma endregion
+
+#endif // RAYPORT_H
+#endif
+#endif
+
 #pragma endregion

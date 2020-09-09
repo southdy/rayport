@@ -7,6 +7,8 @@
 ### improvements
 
 - From now if rayfork defined rayport will defined (So no errors cause of `rayfork.h` include will happen)!
+- Organized code via `#pragma region` and `#pragma endregion` for better code!
+- Made header checks, So you can use external (Or custom) `easings.h` and `raymath.h` if you don't want to use those defined by rayport (You can still use ones defined by rayport).
 
 ## 4/September/2020
 
