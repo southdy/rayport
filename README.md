@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="rayport.png" width="512", height="512">  
+    <img src="rayport.png" width="256", height="256">  
     <p>Awesome C99, Single Source, <a href="https://github.com/SasLuca/rayfork">rayfork</a> wrapper for <a href="https://github.com/raysan5/raylib">raylib</a>!</p>
 </div>
 
