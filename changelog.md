@@ -6,7 +6,7 @@
 
 ### Improvements
 
-- Now you need to include `raylib.h` and `rayfork.h` to work with rayfork.
+- Now you need to include `raylib.h` and rayfork to work with rayport.
 - Removed easings and raymath from rayport (You should use `easings.h` and `raymath.h` from now).
 - Offered internal type converters for better wrapping!
 - New logo!
