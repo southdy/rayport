@@ -1,6 +1,7 @@
 // Created by Rabia Alhaffar in 1/September/2020
-// rayport, Awesome C99, header-only, rayfork wrapper for raylib game programming library!
+// rayport, Awesome C99, Header-Only, rayfork wrapper for raylib game programming library!
 // Latest update: 11/September/2020
+
 // rayport library
 #pragma region rayport library
 #ifndef RAYPORT_H
