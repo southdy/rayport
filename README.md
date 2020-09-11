@@ -1,7 +1,7 @@
 # rayport
 
 <div align="center">
-    <img src="rayport.png">  
+    <img src="rayport.png" width="128", height="128">  
     <p>Awesome C99, Single Source, <a href="https://github.com/SasLuca/rayfork">rayfork</a> wrapper for <a href="https://github.com/raysan5/raylib">raylib</a>!</p>
 </div>
 
