@@ -5,7 +5,9 @@ Here is list of functions wrapped by rayport from raylib and supported via rayfo
 I recommend you having some experience in C before reading this...
 
 ```c
-RLAPI void TraceLog(TraceLogType log_type, const char* msg, ...);
+RLAPI void SetTraceLogLevel(int logType);                         // Set the current threshold (minimum) log level
+RLAPI void SetTraceLogCallback(TraceLogCallback callback);        // Set a trace log callback to enable custom logging
+RLAPI void TraceLog(int logType, const char *text, ...);          // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LO
 RLAPI void ClearBackground(Color color);                          // Set background color (framebuffer clear color)
 RLAPI void BeginDrawing(void);                                    // Setup canvas (framebuffer) to start drawing
 RLAPI void EndDrawing(void);                                      // End canvas drawing and swap buffers (double buffering)
@@ -289,7 +291,6 @@ RLAPI void rlColor4f(float x, float y, float z, float w); // Define one vertex (
 
 RLAPI void rlEnableTexture(unsigned int id);                  // Enable texture usage
 RLAPI void rlDisableTexture(void);                            // Disable texture usage
-RLAPI void rlTextureParameters(unsigned int id, int param, int value); // Set texture parameters (filter, wrap)
 RLAPI void rlEnableRenderTexture(unsigned int id);            // Enable render texture (fbo)
 RLAPI void rlDisableRenderTexture(void);                      // Disable render texture (fbo), return to default framebuffer
 RLAPI void rlEnableDepthTest(void);                           // Enable depth test
@@ -336,128 +337,4 @@ RLAPI void rlUpdateMesh(Mesh mesh, int buffer, int num);                  // Upd
 RLAPI void rlUpdateMeshAt(Mesh mesh, int buffer, int num, int index);     // Update vertex or index data on GPU, at index
 RLAPI void rlDrawMesh(Mesh mesh, Material material, Matrix transform);    // Draw a 3d mesh with material and transform
 RLAPI void rlUnloadMesh(Mesh mesh);                                       // Unload mesh data from CPU and GPU
-
-RMDEF Vector2 Vector2Zero(void);
-RMDEF Vector2 Vector2One(void);
-RMDEF Vector2 Vector2Add(Vector2 v1, Vector2 v2);
-RMDEF Vector2 Vector2AddValue(Vector2 v, float add);
-RMDEF Vector2 Vector2Subtract(Vector2 v1, Vector2 v2);
-RMDEF Vector2 Vector2SubtractValue(Vector2 v, float sub);
-RMDEF float Vector2Length(Vector2 v);
-RMDEF float Vector2LengthSqr(Vector2 v);
-RMDEF float Vector2DotProduct(Vector2 v1, Vector2 v2);
-RMDEF float Vector2Distance(Vector2 v1, Vector2 v2);
-RMDEF float Vector2Angle(Vector2 v1, Vector2 v2);
-RMDEF Vector2 Vector2Scale(Vector2 v, float scale);
-RMDEF Vector2 Vector2Multiply(Vector2 v1, Vector2 v2);
-RMDEF Vector2 Vector2Negate(Vector2 v);
-RMDEF Vector2 Vector2Divide(Vector2 v1, Vector2 v2);
-RMDEF Vector2 Vector2Normalize(Vector2 v);
-RMDEF Vector2 Vector2Lerp(Vector2 v1, Vector2 v2, float amount);
-RMDEF Vector2 Vector2Rotate(Vector2 v, float degs);
-RMDEF Vector2 Vector2MoveTowards(Vector2 v, Vector2 target, float maxDistance);
-
-RMDEF Vector3 Vector3Zero(void);
-RMDEF Vector3 Vector3One(void);
-RMDEF Vector3 Vector3Add(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3AddValue(Vector3 v, float add);
-RMDEF Vector3 Vector3Subtract(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3SubtractValue(Vector3 v, float sub);
-RMDEF Vector3 Vector3Scale(Vector3 v, float scalar);
-RMDEF Vector3 Vector3Multiply(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3CrossProduct(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3Perpendicular(Vector3 v);
-RMDEF float Vector3Length(const Vector3 v);
-RMDEF float Vector3LengthSqr(const Vector3 v);
-RMDEF float Vector3DotProduct(Vector3 v1, Vector3 v2);
-RMDEF float Vector3Distance(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3Negate(Vector3 v);
-RMDEF Vector3 Vector3Divide(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3Normalize(Vector3 v);
-RMDEF void Vector3OrthoNormalize(Vector3* v1, Vector3* v2);
-RMDEF Vector3 Vector3Transform(Vector3 v, Matrix mat);
-RMDEF Vector3 Vector3RotateByQuaternion(Vector3 v, Quaternion q);
-RMDEF Vector3 Vector3Lerp(Vector3 v1, Vector3 v2, float amount);
-RMDEF Vector3 Vector3Reflect(Vector3 v, Vector3 normal);
-RMDEF Vector3 Vector3Min(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3Max(Vector3 v1, Vector3 v2);
-RMDEF Vector3 Vector3Barycenter(Vector3 p, Vector3 a, Vector3 b, Vector3 c);
-RMDEF float3 Vector3ToFloatV(Vector3 v);
-RMDEF float* Vector3ToFloat(Vector3 vec);
-RMDEF Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view);
-
-RMDEF float MatrixDeterminant(Matrix mat);
-RMDEF float MatrixTrace(Matrix mat);
-RMDEF Matrix MatrixTranspose(Matrix mat);
-RMDEF Matrix MatrixInvert(Matrix mat);
-RMDEF Matrix MatrixNormalize(Matrix mat);
-RMDEF Matrix MatrixIdentity(void);
-RMDEF Matrix MatrixAdd(Matrix left, Matrix right);
-RMDEF Matrix MatrixSubtract(Matrix left, Matrix right);
-RMDEF Matrix MatrixTranslate(float x, float y, float z);
-RMDEF Matrix MatrixRotate(Vector3 axis, float angle);
-RMDEF Matrix MatrixRotateXYZ(Vector3 ang);
-RMDEF Matrix MatrixRotateX(float angle);
-RMDEF Matrix MatrixRotateY(float angle);
-RMDEF Matrix MatrixRotateZ(float angle);
-RMDEF Matrix MatrixScale(float x, float y, float z);
-RMDEF Matrix MatrixMultiply(Matrix left, Matrix right);
-RMDEF Matrix MatrixFrustum(double left, double right, double bottom, double top, double near, double far);
-RMDEF Matrix MatrixPerspective(double fovy, double aspect, double near, double far);
-RMDEF Matrix MatrixOrtho(double left, double right, double bottom, double top, double near, double far);
-RMDEF Matrix MatrixLookAt(Vector3 eye, Vector3 target, Vector3 up);
-RMDEF float16 MatrixToFloatV(Matrix mat);
-RMDEF float* MatrixToFloat(Matrix mat);
-
-RMDEF Quaternion QuaternionAdd(Quaternion q1, Quaternion q2);
-RMDEF Quaternion QuaternionAddValue(Quaternion q, float add);
-RMDEF Quaternion QuaternionSubtract(Quaternion q1, Quaternion q2);
-RMDEF Quaternion QuaternionSubtractValue(Quaternion q, float sub);
-RMDEF Quaternion QuaternionIdentity(void);
-RMDEF float QuaternionLength(Quaternion q);
-RMDEF Quaternion QuaternionNormalize(Quaternion q);
-RMDEF Quaternion QuaternionInvert(Quaternion q);
-RMDEF Quaternion QuaternionMultiply(Quaternion q1, Quaternion q2);
-RMDEF Quaternion QuaternionScale(Quaternion q, float mul);
-RMDEF Quaternion QuaternionDivide(Quaternion q1, Quaternion q2);
-RMDEF Quaternion QuaternionLerp(Quaternion q1, Quaternion q2, float amount);
-RMDEF Quaternion QuaternionNlerp(Quaternion q1, Quaternion q2, float amount);
-RMDEF Quaternion QuaternionSlerp(Quaternion q1, Quaternion q2, float amount);
-RMDEF Quaternion QuaternionFromVector3ToVector3(Vector3 from, Vector3 to);
-RMDEF Quaternion QuaternionFromMatrix(Matrix mat);
-RMDEF Matrix QuaternionToMatrix(Quaternion q);
-RMDEF Quaternion QuaternionFromAxisAngle(Vector3 axis, float angle);
-RMDEF void QuaternionToAxisAngle(Quaternion q, Vector3* outAxis, float* outAngle);
-RMDEF Quaternion QuaternionFromEuler(float roll, float pitch, float yaw);
-RMDEF Vector3 QuaternionToEuler(Quaternion q);
-RMDEF Quaternion QuaternionTransform(Quaternion q, Matrix mat);
-
-EASEDEF float EaseLinearNone(float t, float b, float c, float d);
-EASEDEF float EaseLinearIn(float t, float b, float c, float d);
-EASEDEF float EaseLinearOut(float t, float b, float c, float d);
-EASEDEF float EaseLinearInOut(float t, float b, float c, float d);
-EASEDEF float EaseSineIn(float t, float b, float c, float d);
-EASEDEF float EaseSineOut(float t, float b, float c, float d);
-EASEDEF float EaseSineInOut(float t, float b, float c, float d);
-EASEDEF float EaseCircIn(float t, float b, float c, float d);
-EASEDEF float EaseCircOut(float t, float b, float c, float d);
-EASEDEF float EaseCircInOut(float t, float b, float c, float d);
-EASEDEF float EaseCubicIn(float t, float b, float c, float d);
-EASEDEF float EaseCubicOut(float t, float b, float c, float d);
-EASEDEF float EaseCubicInOut(float t, float b, float c, float d);
-EASEDEF float EaseQuadIn(float t, float b, float c, float d);
-EASEDEF float EaseQuadOut(float t, float b, float c, float d);
-EASEDEF float EaseQuadInOut(float t, float b, float c, float d);
-EASEDEF float EaseExpoIn(float t, float b, float c, float d);
-EASEDEF float EaseExpoOut(float t, float b, float c, float d);
-EASEDEF float EaseExpoInOut(float t, float b, float c, float d);
-EASEDEF float EaseBackIn(float t, float b, float c, float d);
-EASEDEF float EaseBackOut(float t, float b, float c, float d);
-EASEDEF float EaseBackInOut(float t, float b, float c, float d);
-EASEDEF float EaseBounceOut(float t, float b, float c, float d);
-EASEDEF float EaseBounceIn(float t, float b, float c, float d);
-EASEDEF float EaseBounceInOut(float t, float b, float c, float d);
-EASEDEF float EaseElasticIn(float t, float b, float c, float d);
-EASEDEF float EaseElasticOut(float t, float b, float c, float d);
-EASEDEF float EaseElasticInOut(float t, float b, float c, float d);
 ```
