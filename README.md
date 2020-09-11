@@ -1,7 +1,7 @@
 <div align="center">
     <img src="rayport.png" width="256", height="256">  
     <p>Awesome C99, Single Source, <a href="https://github.com/SasLuca/rayfork">rayfork</a> wrapper for <a href="https://github.com/raysan5/raylib">raylib</a>!</p>
-</div>
+</div><br>
 
 rayport wraps raylib API depending on what rayfork supports from raylib to keep compatibiltiy, Also RLGL wrapped!
 You need to include `raylib.h` and rayfork to use rayport!
