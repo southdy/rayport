@@ -2,9 +2,21 @@
 
 > NOTE: In addition to read the changelog, I recommend you reading the [API](https://github.com/Rabios/rayport/blob/master/api.md) to see list of functions!
 
+## 11/September/2020
+
+### Improvements
+
+- Now you need to include `raylib.h` and `rayfork.h` to work with rayfork.
+- Removed easings and raymath from rayport (You should use `easings.h` and `raymath.h` from now).
+- Offered internal type converters for better wrapping!
+- New logo!
+- Made a modified version of `raylib.h` (Not modified but add stuff to structs) for compatibility with rayfork!
+
+> CAUTION: You shouldn't use external `rlgl.h`, That's to stick with rayfork!
+
 ## 9/September/2020
 
-### improvements
+### Improvements
 
 - From now if rayfork defined rayport will defined (So no errors cause of `rayfork.h` include will happen)!
 - Organized code via `#pragma region` and `#pragma endregion` for better code!
@@ -12,7 +24,7 @@
 
 ## 4/September/2020
 
-### additions
+### Additions
 
 - More functions wrapped!
 

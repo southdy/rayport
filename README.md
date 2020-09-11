@@ -1,10 +1,12 @@
 # rayport
 
-Awesome [raylib](https://github.com/raysan5/raylib) wrapper for [rayfork](https://github.com/SasLuca/rayfork), All in a single header without worries!
+<div align="center">
+    <img src="rayport.png">  
+    <p>Awesome C99, Single Source, <a href="https://github.com/SasLuca/rayfork">rayfork</a> wrapper for <a href="https://github.com/raysan5/raylib">raylib</a>!</p>
+</div>
 
-rayport wraps raylib API depending on what rayfork supports from raylib to keep compatibiltiy, Also RLGL and raymath and easings wrapped!
-
-Note that rayport doesn't require raylib as rayport uses rayfork functions!
+rayport wraps raylib API depending on what rayfork supports from raylib to keep compatibiltiy, Also RLGL wrapped!
+You need to include `raylib.h` and rayfork to use rayport!
 
 ### Why rayport?
 
@@ -12,17 +14,17 @@ Note that rayport doesn't require raylib as rayport uses rayfork functions!
 - Easy way to save porting time, You just need to rewrite window and input code (Depending on window and input library will used with rayfork).
 - More independency to raylib code via rayfork (As rayfork can use any window and input library).
 - rayport is written in C99, Making it portable and easy to use anywhere you name it!
-- No compilation needed, Just include `rayport.h` with your game that includes rayfork and all done!
 
 ### Example
 
-Here is a simple example for rayport with rayfork uses GLFW, Just include `rayport.h` (You don't need raylib to use rayport but make sure you included rayfork in your solution)
+Here is a simple example for rayport with rayfork uses GLFW (Include "rayfork.h" with including rayfork and raylib previously!)
 
 ```c
-#include "include/rayfork.h"
+#include "raylib.h"
+#include "rayfork.h"
 #include "glad.h"
-#include "GLFW/glfw3.h"
 #include "rayport.h"
+#include "GLFW/glfw3.h"
 
 int main()
 {
@@ -59,12 +61,15 @@ int main()
 
 Original code can be found [here](https://github.com/SasLuca/rayfork-tests/blob/master/special-setup-tests/simple-glfw/main.c).
 
+
 ### NOTES
 
 1. Note that rayfork still miss some features unlike raylib, So some functions aren't wrapped yet!
-2. Values of gamepad stuff in enums predefined for compatibility with raylib, As you use input library with rayfork!
-3. API macros uses `RF_API` (rayfork API macro) instead of defining them as standalone ones.
-4. Although rayfork still miss some stuff, I successed lately in wrapping more stuff (And will still do)!
+2. Since 10/September/2020, You should include `easings.h` and `raymath.h` in order to use raymath and easings.
+3. Although rayfork still miss some stuff, I successed lately in wrapping more stuff (And will still do)!
+4. Don't use `rlgl.h` since RLGL wrapped from `rayport.h`, That's to keep compatibility!
+5. If you want to use custom `raylib.h` (Your own one), Make sure you add `bool valid` to structs `Texture2D` and `Image` in `raylib.h`.
+6. If you don't care about step 5, I made `raylib.h` ready for use with `rayport.h`, You just need to include rayfork.
 
 > For list of available wrapped functions (As enums and colors wrapped), See [here](https://github.com/Rabios/rayport/blob/master/api.md).
 
