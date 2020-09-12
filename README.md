@@ -63,9 +63,9 @@ Original code can be found [here](https://github.com/SasLuca/rayfork-tests/blob/
 ### NOTES
 
 1. Note that rayfork still miss some features unlike raylib, So some functions aren't wrapped yet!
-2. Since 10/September/2020, You should include `easings.h` and `raymath.h` in order to use raymath and easings.
+2. Since 12/September/2020, You should include `easings.h` in order to use easings.
 3. Although rayfork still miss some stuff, I successed lately in wrapping more stuff (And will still do)!
-4. Don't use `rlgl.h` since RLGL wrapped from `rayport.h`, That's to keep compatibility!
+4. Don't use custom `rlgl.h` as RLGL since it's wrapped from `rayport.h`, That's to keep compatibility!
 5. If you want to use custom `raylib.h` (Your own one), Make sure you add `bool valid` to structs `Texture2D` and `Image` in `raylib.h`.
 6. If you don't care about step 5, I made `raylib.h` ready for use with `rayport.h`, You just need to include rayfork.
 

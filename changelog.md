@@ -2,6 +2,12 @@
 
 > NOTE: In addition to read the changelog, I recommend you reading the [API](https://github.com/Rabios/rayport/blob/master/api.md) to see list of functions!
 
+## 12/September/2020
+
+### Improvements
+
+- Readded raymath again (You don't need to include `raymath.h` as they are wrapped from rayfork!)
+
 ## 11/September/2020
 
 ### Improvements

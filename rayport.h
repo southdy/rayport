@@ -1,9 +1,9 @@
 // Created by Rabia Alhaffar in 1/September/2020
-// rayport, Awesome C99, Header-Only, rayfork wrapper for raylib game programming library!
-// Latest update: 11/September/2020
+// rayport, Awesome C99, Single Source, rayfork wrapper for raylib!
+// Latest update: 12/September/2020
 
-// rayport library
-#pragma region rayport library
+// rayport
+#pragma region rayport
 #ifndef RAYPORT_H
 #define RAYPORT_H
 
@@ -11,6 +11,8 @@
 #ifdef RAYFORK_H
 
 typedef unsigned char byte;
+typedef struct float3 { float v[3]; } float3;
+typedef struct float16 { float v[16]; } float16;
 
 // Type converters used by rayport
 // Consider using these if you got stuck with using rayfork or raylib types
@@ -47,6 +49,7 @@ rf_model_animation rfanim(ModelAnimation a) { return (rf_model_animation) { a.bo
 rf_ray_hit_info rfhitinfo(RayHitInfo r) {
     return (rf_ray_hit_info) { r.hit, r.distance, rfvec3(r.position), rfvec3(r.normal) };
 }
+rf_quaternion rfquat(Quaternion q) { return (rf_quaternion) { q.x, q.y, q.z, q.w }; }
 
 // rayfork type -> raylib type
 Matrix rayfork_matrix(rf_mat m) {
@@ -83,6 +86,7 @@ Mesh rayfork_mesh(rf_mesh m) {
 }
 Shader rayfork_shader(rf_shader s) { return (Shader) { s.id, s.locs }; }
 Material rayfork_material(rf_material m) { return (Material) { rayfork_shader(m.shader), m.maps, m.params }; }
+
 Texture2D rayfork_texture(rf_texture2d t) {
     return (Texture2D) { t.id, t.width, t.height, t.mipmaps, t.format, t.valid };
 }
@@ -121,6 +125,7 @@ ModelAnimation rayfork_animation(rf_model_animation a) {
     return (ModelAnimation) { a.bone_count, a.bones, a.frame_count, a.frame_poses };
 }
 NPatchInfo rayfork_npatch_info(rf_npatch_info n) { return (NPatchInfo) { rayfork_rectangle(n.source_rec), n.left, n.right, n.top, n.bottom, n.type }; }
+Quaternion rayfork_quat(rf_quaternion q) { return (Quaternion) { q.x, q.y, q.z, q.w }; }
 #pragma endregion
 
 #pragma region Core
@@ -517,7 +522,6 @@ RLAPI void SetModelMeshMaterial(Model* model, int meshId, int materialId) {
     if (!(meshId >= model->meshCount) && !(materialId >= model->materialCount)) model->meshMaterial[meshId] = materialId;
 }
 #pragma endregion
-
 // Model animations loading/unloading functions
 #pragma region Model animations loading/unloading functions
 RLAPI ModelAnimation* LoadModelAnimations(const char* fileName, int* animsCount) { rf_load_model_animations_from_iqm_ez(fileName, animsCount); }
@@ -706,8 +710,8 @@ RLAPI void rlUpdateTexture(unsigned int id, int offsetX, int offsetY, int width,
 RLAPI void rlUnloadTexture(unsigned int id) { rf_gfx_unload_texture(id); }
 
 RLAPI void rlGenerateMipmaps(Texture2D* texture) { rf_gfx_generate_mipmaps(texture); }
-RLAPI void* rlReadTexturePixels(Texture2D texture) { rf_gfx_read_texture_pixels_ez(rftex(texture)); }
-RLAPI unsigned char* rlReadScreenPixels(int width, int height, Color* dstColor) { rf_gfx_read_screen_pixels(dstColor, width, height); }
+RLAPI Image rlReadTexturePixels(Texture2D texture) { return rayfork_image(rf_gfx_read_texture_pixels_ez(rftex(texture))); }
+RLAPI void rlReadScreenPixels(int width, int height, Color* dstColor) { rf_gfx_read_screen_pixels(dstColor, width, height); }
 #pragma endregion
 
 // Render texture management (fbo)
@@ -728,6 +732,327 @@ RLAPI void rlUnloadMesh(Mesh mesh) { rf_gfx_unload_mesh(rfmesh(mesh)); }
 
 #endif
 #pragma endregion
+
+// raymath.h
+#pragma region raymath
+#ifndef RAYMATH_H
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Utils math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Utils math
+float Clamp(float value, float min, float max) { return rf_clamp(value, min, max); }
+float Lerp(float start, float end, float amount) { return rf_lerp(start, end, amount); }
+#pragma endregion
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Vector2 math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Vector2 math
+Vector2 Vector2Zero(void) { return (Vector2) { 0, 0 }; }
+Vector2 Vector2One(void) { return (Vector2) { 1, 1 }; }
+Vector2 Vector2Add(Vector2 v1, Vector2 v2) { return rayfork_vec2(rf_vec2_add(rfvec2(v1), rfvec2(v2))); }
+Vector2 Vector2AddValue(Vector2 v, float add) { return (Vector2) { v.x + add, v.y + add }; }
+Vector2 Vector2Subtract(Vector2 v1, Vector2 v2) { return rayfork_vec2(rf_vec2_sub(rfvec2(v1), rfvec2(v2))); }
+Vector2 Vector2SubtractValue(Vector2 v, float sub) { return (Vector2) { v.x - sub, v.y - sub }; }
+float Vector2Length(Vector2 v) { return rf_vec2_len(rfvec2(v)); }
+float Vector2LengthSqr(Vector2 v) { return sqrtf(rf_vec2_len(rfvec2(v))); }
+float Vector2DotProduct(Vector2 v1, Vector2 v2) { return rf_vec2_dot_product(rfvec2(v1), rfvec2(v2)); }
+float Vector2Distance(Vector2 v1, Vector2 v2) { return rf_vec2_distance(rfvec2(v1), rfvec2(v2)); }
+float Vector2Angle(Vector2 v1, Vector2 v2) { return rf_vec2_angle(rfvec2(v1), rfvec2(v2)); }
+Vector2 Vector2Scale(Vector2 v, float scale) { return rayfork_vec2(rf_vec2_scale(rfvec2(v), scale)); }
+Vector2 Vector2Multiply(Vector2 v1, Vector2 v2) { return rayfork_vec2(rf_vec2_mul_v(rfvec2(v1), rfvec2(v2))); }
+Vector2 Vector2Negate(Vector2 v) { return rayfork_vec2(rf_vec2_negate(rfvec2(v))); }
+Vector2 Vector2Divide(Vector2 v1, Vector2 v2) { return rayfork_vec2(rf_vec2_div_v(rfvec2(v1), rfvec2(v2))); }
+Vector2 Vector2Normalize(Vector2 v) { return rayfork_vec2(rf_vec2_normalize(rfvec2(v))); }
+Vector2 Vector2Lerp(Vector2 v1, Vector2 v2, float amount) { return rayfork_vec2(rf_vec2_lerp(rfvec2(v1), rfvec2(v2), amount)); }
+Vector2 Vector2Rotate(Vector2 v, float degs) {
+    float rads = degs * DEG2RAD;
+    Vector2 result = { v.x * cosf(rads) - v.y * sinf(rads) , v.x * sinf(rads) + v.y * cosf(rads) };
+    return result;
+}
+Vector2 Vector2MoveTowards(Vector2 v, Vector2 target, float maxDistance) {
+    Vector2 result = { 0 };
+    float dx = target.x - v.x;
+    float dy = target.y - v.y;
+    float value = (dx * dx) + (dy * dy);
+
+    if ((value == 0) || ((maxDistance >= 0) && (value <= maxDistance * maxDistance))) result = target;
+
+    float dist = sqrtf(value);
+
+    result.x = v.x + dx / dist * maxDistance;
+    result.y = v.y + dy / dist * maxDistance;
+
+    return result;
+}
+#pragma endregion
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Vector3 math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Vector3 math
+Vector3 Vector3Zero(void) { return (Vector3) { 0, 0, 0 }; }
+Vector3 Vector3One(void) { return (Vector3) { 1, 1, 1 }; }
+Vector3 Vector3Add(Vector3 v1, Vector3 v2) { return rayfork_vec3(rf_vec3_add(rfvec3(v1), rfvec3(v2))); }
+Vector3 Vector3AddValue(Vector3 v, float add) { return (Vector3) { v.x + add, v.y + add, v.z + add }; }
+Vector3 Vector3Subtract(Vector3 v1, Vector3 v2) { return rayfork_vec3(rf_vec3_sub(rfvec3(v1), rfvec3(v2))); }
+Vector3 Vector3SubtractValue(Vector3 v, float sub) { return (Vector3) { v.x - sub, v.y - sub, v.z - sub }; }
+Vector3 Vector3Scale(Vector3 v, float scalar) { return rayfork_vec3(rf_vec3_scale(rfvec3(v), scalar)); }
+Vector3 Vector3Multiply(Vector3 v1, Vector3 v2) { return rayfork_vec3(rf_vec3_mul_v(rfvec3(v1), rfvec3(v2))); }
+Vector3 Vector3CrossProduct(Vector3 v1, Vector3 v2) { return rayfork_vec3(rf_vec3_cross_product(rfvec3(v1), rfvec3(v2))); }
+Vector3 Vector3Perpendicular(Vector3 v) { return rayfork_vec3(rf_vec3_perpendicular(rfvec3(v))); }
+float Vector3Length(const Vector3 v) { return rf_vec3_len(rfvec3(v)); }
+float Vector3LengthSqr(const Vector3 v) { return sqrtf(rf_vec3_len(rfvec3(v))); }
+float Vector3DotProduct(Vector3 v1, Vector3 v2) { return rf_vec3_dot_product(rfvec3(v1), rfvec3(v2)); }
+float Vector3Distance(Vector3 v1, Vector3 v2) { return rf_vec3_distance(rfvec3(v1), rfvec3(v2)); }
+Vector3 Vector3Negate(Vector3 v) { return rayfork_vec3(rf_vec3_negate(rfvec3(v))); }
+Vector3 Vector3Divide(Vector3 v1, Vector3 v2) { return rayfork_vec3(rf_vec3_div_v(rfvec3(v1), rfvec3(v2))); }
+Vector3 Vector3Normalize(Vector3 v) { return rayfork_vec3(rf_vec3_normalize(rfvec3(v))); }
+void Vector3OrthoNormalize(Vector3* v1, Vector3* v2)
+{
+    *v1 = Vector3Normalize(*v1);
+    Vector3 vn = Vector3CrossProduct(*v1, *v2);
+    vn = Vector3Normalize(vn);
+    *v2 = Vector3CrossProduct(vn, *v1);
+}
+
+Vector3 Vector3Transform(Vector3 v, Matrix mat) { return rayfork_vec3(rf_vec3_transform(rfvec3(v), rfmat(mat))); }
+Vector3 Vector3RotateByQuaternion(Vector3 v, Quaternion q) { return rayfork_vec3(rf_vec3_rotate_by_quaternion(rfvec3(v), rfquat(q))); }
+Vector3 Vector3Lerp(Vector3 v1, Vector3 v2, float amount) { return rayfork_vec3(rf_vec3_lerp(rfvec3(v1), rfvec3(v2), amount)); }
+Vector3 Vector3Reflect(Vector3 v, Vector3 normal) { return rayfork_vec3(rf_vec3_reflect(rfvec3(v), rfvec3(normal))); }
+Vector3 Vector3Min(Vector3 v1, Vector3 v2) { return rayfork_vec3(rf_vec3_min(rfvec3(v1), rfvec3(v2))); }
+Vector3 Vector3Max(Vector3 v1, Vector3 v2) { return rayfork_vec3(rf_vec3_max(rfvec3(v1), rfvec3(v2))); }
+Vector3 Vector3Barycenter(Vector3 p, Vector3 a, Vector3 b, Vector3 c) { return rayfork_vec3(rf_vec3_barycenter(rfvec3(p), rfvec3(a), rfvec3(b), rfvec3(c))); }
+float3 Vector3ToFloatV(Vector3 v) {
+    float3 buffer = { 0 };
+
+    buffer.v[0] = v.x;
+    buffer.v[1] = v.y;
+    buffer.v[2] = v.z;
+
+    return buffer;
+}
+float* Vector3ToFloat(Vector3 vec) { return Vector3ToFloatV(vec).v; };
+Vector3 Vector3Unproject(Vector3 source, Matrix projection, Matrix view) { return rayfork_vec3(rf_unproject(rfvec3(source), rfmat(projection), rfmat(view))); }
+#pragma endregion
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Matrix math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Matrix math
+float MatrixDeterminant(Matrix mat) { return rf_mat_determinant(rfmat(mat)); }
+float MatrixTrace(Matrix mat) { return rf_mat_trace(rfmat(mat)); }
+Matrix MatrixTranspose(Matrix mat) { return rayfork_matrix(rf_mat_transpose(rfmat(mat))); }
+Matrix MatrixInvert(Matrix mat) { return rayfork_matrix(rf_mat_invert(rfmat(mat))); }
+Matrix MatrixNormalize(Matrix mat) { return rayfork_matrix(rf_mat_normalize(rfmat(mat))); }
+Matrix MatrixIdentity(void) { return rayfork_matrix(rf_mat_identity()); }
+Matrix MatrixAdd(Matrix left, Matrix right) { return rayfork_matrix(rf_mat_add(rfmat(left), rfmat(right))); }
+Matrix MatrixSubtract(Matrix left, Matrix right) { return rayfork_matrix(rf_mat_sub(rfmat(left), rfmat(right))); }
+Matrix MatrixTranslate(float x, float y, float z) { return rayfork_matrix(rf_mat_translate(x, y, z)); }
+Matrix MatrixRotate(Vector3 axis, float angle) { return rayfork_matrix(rf_mat_rotate(rfvec3(axis), angle)); }
+Matrix MatrixRotateXYZ(Vector3 ang) { return rayfork_matrix(rf_mat_rotate_xyz(rfvec3(ang))); }
+Matrix MatrixRotateX(float angle) { return rayfork_matrix(rf_mat_rotate_x(angle)); }
+Matrix MatrixRotateY(float angle) { return rayfork_matrix(rf_mat_rotate_y(angle)); }
+Matrix MatrixRotateZ(float angle) { return rayfork_matrix(rf_mat_rotate_z(angle)); }
+Matrix MatrixScale(float x, float y, float z) { return rayfork_matrix(rf_mat_scale(x, y, z)); }
+Matrix MatrixMultiply(Matrix left, Matrix right) { return rayfork_matrix(rf_mat_mul(rfmat(left), rfmat(right))); }
+Matrix MatrixFrustum(double left, double right, double bottom, double top, double near, double far) { return rayfork_matrix(rf_mat_frustum(left, right, bottom, top, near, far)); }
+Matrix MatrixPerspective(double fovy, double aspect, double near, double far) { return rayfork_matrix(rf_mat_perspective(fovy, aspect, near, far)); }
+Matrix MatrixOrtho(double left, double right, double bottom, double top, double near, double far) { return rayfork_matrix(rf_mat_ortho(left, right, bottom, top, near, far)); }
+Matrix MatrixLookAt(Vector3 eye, Vector3 target, Vector3 up) { return rayfork_matrix(rf_mat_look_at(rfvec3(eye), rfvec3(target), rfvec3(up))); }
+float16 MatrixToFloatV(Matrix mat) {
+    float16 buffer = { 0 };
+
+    buffer.v[0] = mat.m0;
+    buffer.v[1] = mat.m1;
+    buffer.v[2] = mat.m2;
+    buffer.v[3] = mat.m3;
+    buffer.v[4] = mat.m4;
+    buffer.v[5] = mat.m5;
+    buffer.v[6] = mat.m6;
+    buffer.v[7] = mat.m7;
+    buffer.v[8] = mat.m8;
+    buffer.v[9] = mat.m9;
+    buffer.v[10] = mat.m10;
+    buffer.v[11] = mat.m11;
+    buffer.v[12] = mat.m12;
+    buffer.v[13] = mat.m13;
+    buffer.v[14] = mat.m14;
+    buffer.v[15] = mat.m15;
+
+    return buffer;
+}
+float* MatrixToFloat(Matrix mat) { return MatrixToFloatV(mat).v; }
+#pragma endregion
+
+//----------------------------------------------------------------------------------
+// Module Functions Definition - Quaternion math
+//----------------------------------------------------------------------------------
+#pragma region Module Functions Definition - Quaternion math
+Quaternion QuaternionAdd(Quaternion q1, Quaternion q2) {
+    Quaternion result = { q1.x + q2.x, q1.y + q2.y, q1.z + q2.z, q1.w + q2.w };
+    return result;
+}
+Quaternion QuaternionAddValue(Quaternion q, float add) {
+    Quaternion result = { q.x + add, q.y + add, q.z + add, q.w + add };
+    return result;
+}
+Quaternion QuaternionSubtract(Quaternion q1, Quaternion q2) {
+    Quaternion result = { q1.x - q2.x, q1.y - q2.y, q1.z - q2.z, q1.w - q2.w };
+    return result;
+}
+Quaternion QuaternionSubtractValue(Quaternion q, float sub) {
+    Quaternion result = { q.x - sub, q.y - sub, q.z - sub, q.w - sub };
+    return result;
+}
+Quaternion QuaternionIdentity(void) { return rayfork_quat(rf_quaternion_identity()); }
+float QuaternionLength(Quaternion q) { return rf_quaternion_len(rfquat(q)); }
+Quaternion QuaternionNormalize(Quaternion q) { return rayfork_quat(rf_quaternion_normalize(rfquat(q))); }
+Quaternion QuaternionInvert(Quaternion q) { return rayfork_quat(rf_quaternion_invert(rfquat(q))); }
+Quaternion QuaternionMultiply(Quaternion q1, Quaternion q2) { return rayfork_quat(rf_quaternion_mul(rfquat(q1), rfquat(q2))); }
+Quaternion QuaternionScale(Quaternion q, float mul) {
+    Quaternion result = { 0 };
+
+    float qax = q.x, qay = q.y, qaz = q.z, qaw = q.w;
+
+    result.x = qax * mul + qaw * mul + qay * mul - qaz * mul;
+    result.y = qay * mul + qaw * mul + qaz * mul - qax * mul;
+    result.z = qaz * mul + qaw * mul + qax * mul - qay * mul;
+    result.w = qaw * mul - qax * mul - qay * mul - qaz * mul;
+
+    return result;
+}
+Quaternion QuaternionDivide(Quaternion q1, Quaternion q2) {
+    Quaternion result = { q1.x / q2.x, q1.y / q2.y, q1.z / q2.z, q1.w / q2.w };
+    return result;
+}
+Quaternion QuaternionLerp(Quaternion q1, Quaternion q2, float amount) { return rayfork_quat(rf_quaternion_lerp(rfquat(q1), rfquat(q2), amount)); }
+Quaternion QuaternionNlerp(Quaternion q1, Quaternion q2, float amount) { return rayfork_quat(rf_quaternion_nlerp(rfquat(q1), rfquat(q2), amount)); }
+Quaternion QuaternionSlerp(Quaternion q1, Quaternion q2, float amount) { return rayfork_quat(rf_quaternion_slerp(rfquat(q1), rfquat(q2), amount)); }
+Quaternion QuaternionFromVector3ToVector3(Vector3 from, Vector3 to) {
+    Quaternion result = { 0 };
+
+    float cos2Theta = Vector3DotProduct(from, to);
+    Vector3 cross = Vector3CrossProduct(from, to);
+
+    result.x = cross.x;
+    result.y = cross.y;
+    result.z = cross.y;
+    result.w = 1.0f + cos2Theta;     // NOTE: Added QuaternioIdentity()
+
+    // Normalize to essentially nlerp the original and identity to 0.5
+    result = QuaternionNormalize(result);
+
+    // Above lines are equivalent to:
+    //Quaternion result = QuaternionNlerp(q, QuaternionIdentity(), 0.5f);
+
+    return result;
+}
+Quaternion QuaternionFromMatrix(Matrix mat) {
+    Quaternion result = { 0 };
+
+    float trace = MatrixTrace(mat);
+
+    if (trace > 0.0f)
+    {
+        float s = sqrtf(trace + 1) * 2.0f;
+        float invS = 1.0f / s;
+
+        result.w = s * 0.25f;
+        result.x = (mat.m6 - mat.m9) * invS;
+        result.y = (mat.m8 - mat.m2) * invS;
+        result.z = (mat.m1 - mat.m4) * invS;
+    }
+    else
+    {
+        float m00 = mat.m0, m11 = mat.m5, m22 = mat.m10;
+
+        if (m00 > m11 && m00 > m22)
+        {
+            float s = (float)sqrt(1.0f + m00 - m11 - m22) * 2.0f;
+            float invS = 1.0f / s;
+
+            result.w = (mat.m6 - mat.m9) * invS;
+            result.x = s * 0.25f;
+            result.y = (mat.m4 + mat.m1) * invS;
+            result.z = (mat.m8 + mat.m2) * invS;
+        }
+        else if (m11 > m22)
+        {
+            float s = sqrtf(1.0f + m11 - m00 - m22) * 2.0f;
+            float invS = 1.0f / s;
+
+            result.w = (mat.m8 - mat.m2) * invS;
+            result.x = (mat.m4 + mat.m1) * invS;
+            result.y = s * 0.25f;
+            result.z = (mat.m9 + mat.m6) * invS;
+        }
+        else
+        {
+            float s = sqrtf(1.0f + m22 - m00 - m11) * 2.0f;
+            float invS = 1.0f / s;
+
+            result.w = (mat.m1 - mat.m4) * invS;
+            result.x = (mat.m8 + mat.m2) * invS;
+            result.y = (mat.m9 + mat.m6) * invS;
+            result.z = s * 0.25f;
+        }
+    }
+
+    return result;
+}
+Matrix QuaternionToMatrix(Quaternion q) {
+    Matrix result = { 0 };
+
+    float x = q.x, y = q.y, z = q.z, w = q.w;
+
+    float x2 = x + x;
+    float y2 = y + y;
+    float z2 = z + z;
+
+    float length = QuaternionLength(q);
+    float lengthSquared = length * length;
+
+    float xx = x * x2 / lengthSquared;
+    float xy = x * y2 / lengthSquared;
+    float xz = x * z2 / lengthSquared;
+
+    float yy = y * y2 / lengthSquared;
+    float yz = y * z2 / lengthSquared;
+    float zz = z * z2 / lengthSquared;
+
+    float wx = w * x2 / lengthSquared;
+    float wy = w * y2 / lengthSquared;
+    float wz = w * z2 / lengthSquared;
+
+    result.m0 = 1.0f - (yy + zz);
+    result.m1 = xy - wz;
+    result.m2 = xz + wy;
+    result.m3 = 0.0f;
+    result.m4 = xy + wz;
+    result.m5 = 1.0f - (xx + zz);
+    result.m6 = yz - wx;
+    result.m7 = 0.0f;
+    result.m8 = xz - wy;
+    result.m9 = yz + wx;
+    result.m10 = 1.0f - (xx + yy);
+    result.m11 = 0.0f;
+    result.m12 = 0.0f;
+    result.m13 = 0.0f;
+    result.m14 = 0.0f;
+    result.m15 = 1.0f;
+
+    return result;
+}
+Quaternion QuaternionFromAxisAngle(Vector3 axis, float angle) { return rayfork_quat(rf_quaternion_from_axis_angle(rfvec3(axis), angle)); }
+void QuaternionToAxisAngle(Quaternion q, Vector3* outAxis, float* outAngle) { rf_quaternion_to_axis_angle(rfquat(q), outAxis, outAngle); }
+Quaternion QuaternionFromEuler(float roll, float pitch, float yaw) { return rayfork_quat(rf_quaternion_from_euler(roll, pitch, yaw)); }
+Vector3 QuaternionToEuler(Quaternion q) { return rayfork_vec3(rf_quaternion_to_euler(rfquat(q))); }
+Quaternion QuaternionTransform(Quaternion q, Matrix mat) { return rayfork_quat(rf_quaternion_transform(rfquat(q), rfmat(mat))); }
+#pragma endregion
+
+#pragma endregion
+#endif
 
 #endif
 #endif
