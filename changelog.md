@@ -7,6 +7,8 @@
 ### Improvements
 
 - Readded raymath again (You don't need to include `raymath.h` as wrapped from rayfork!)
+- Wrapped a bunch of core functions!
+- Wrapped strings management functions!
 
 ## 11/September/2020
 

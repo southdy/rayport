@@ -10,6 +10,20 @@
 #ifdef RAYLIB_H
 #ifdef RAYFORK_H
 
+#ifndef MAX_TEXT_BUFFER_LENGTH
+#define MAX_TEXT_BUFFER_LENGTH              1024        // Size of internal static buffers used on some functions:
+                                                        // TextFormat(), TextSubtext(), TextToUpper(), TextToLower(), TextToPascal(), TextSplit()
+#endif
+#ifndef MAX_TEXT_UNICODE_CHARS
+#define MAX_TEXT_UNICODE_CHARS               512        // Maximum number of unicode codepoints: GetCodepoints()
+#endif
+#ifndef MAX_TEXTSPLIT_COUNT
+#define MAX_TEXTSPLIT_COUNT                  128        // Maximum number of substrings to split: TextSplit()
+#endif
+
+#define MAX_FILEPATH_LENGTH    512
+#define MAX_FILENAMEWITHOUTEXT_LENGTH   128
+
 typedef unsigned char byte;
 typedef struct float3 { float v[3]; } float3;
 typedef struct float16 { float v[16]; } float16;
@@ -130,11 +144,277 @@ Quaternion rayfork_quat(rf_quaternion q) { return (Quaternion) { q.x, q.y, q.z, 
 
 #pragma region Core
 
+// Check if the file exists
+RLAPI bool FileExists(const char* fileName)
+{
+    bool result = false;
+
+#if defined(_WIN32)
+    if (_access(fileName, 0) != -1) result = true;
+#else
+    if (access(fileName, F_OK) != -1) result = true;
+#endif
+
+    return result;
+}
+
+// Check file extension
+// NOTE: Extensions checking is not case-sensitive
+RLAPI bool IsFileExtension(const char* fileName, const char* ext)
+{
+    bool result = false;
+    const char* fileExt = GetExtension(fileName);
+
+    if (fileExt != NULL)
+    {
+        int extCount = 0;
+        const char** checkExts = TextSplit(ext, ';', &extCount);
+
+        char fileExtLower[16] = { 0 };
+        strcpy(fileExtLower, TextToLower(fileExt));
+
+        for (int i = 0; i < extCount; i++)
+        {
+            if (TextIsEqual(fileExtLower, TextToLower(checkExts[i] + 1)))
+            {
+                result = true;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+// Get pointer to extension for a filename string
+RLAPI const char* GetExtension(const char* fileName)
+{
+    const char* dot = strrchr(fileName, '.');
+
+    if (!dot || dot == fileName) return NULL;
+
+    return (dot + 1);
+}
+
+// String pointer reverse break: returns right-most occurrence of charset in s
+RLAPI static const char* strprbrk(const char* s, const char* charset)
+{
+    const char* latestMatch = NULL;
+    for (; s = strpbrk(s, charset), s != NULL; latestMatch = s++) {}
+    return latestMatch;
+}
+
+// Get pointer to filename for a path string
+RLAPI const char* GetFileName(const char* filePath)
+{
+    const char* fileName = NULL;
+    if (filePath != NULL) fileName = strprbrk(filePath, "\\/");
+
+    if (!fileName || (fileName == filePath)) return filePath;
+
+    return fileName + 1;
+}
+
+// Get filename string without extension (uses static string)
+RLAPI const char* GetFileNameWithoutExt(const char* filePath)
+{
+    static char fileName[MAX_FILENAMEWITHOUTEXT_LENGTH];
+    memset(fileName, 0, MAX_FILENAMEWITHOUTEXT_LENGTH);
+
+    if (filePath != NULL) strcpy(fileName, GetFileName(filePath));   // Get filename with extension
+
+    int len = strlen(fileName);
+
+    for (int i = 0; (i < len) && (i < MAX_FILENAMEWITHOUTEXT_LENGTH); i++)
+    {
+        if (fileName[i] == '.')
+        {
+            // NOTE: We break on first '.' found
+            fileName[i] = '\0';
+            break;
+        }
+    }
+
+    return fileName;
+}
+
+// Get directory for a given filePath
+RLAPI const char* GetDirectoryPath(const char* filePath)
+{
+    /*
+        // NOTE: Directory separator is different in Windows and other platforms,
+        // fortunately, Windows also support the '/' separator, that's the one should be used
+        #if defined(_WIN32)
+            char separator = '\\';
+        #else
+            char separator = '/';
+        #endif
+    */
+    const char* lastSlash = NULL;
+    static char dirPath[MAX_FILEPATH_LENGTH];
+    memset(dirPath, 0, MAX_FILEPATH_LENGTH);
+
+    // In case provided path does not contains a root drive letter (C:\, D:\),
+    // we add the current directory path to dirPath
+    if (filePath[1] != ':')
+    {
+        // For security, we set starting path to current directory,
+        // obtained path will be concated to this
+        dirPath[0] = '.';
+        dirPath[1] = '/';
+    }
+
+    lastSlash = strprbrk(filePath, "\\/");
+    if (lastSlash)
+    {
+        // NOTE: Be careful, strncpy() is not safe, it does not care about '\0'
+        strncpy(dirPath + ((filePath[1] != ':') ? 2 : 0), filePath, strlen(filePath) - (strlen(lastSlash) - 1));
+        dirPath[strlen(filePath) - strlen(lastSlash) + ((filePath[1] != ':') ? 2 : 0)] = '\0';  // Add '\0' manually
+    }
+
+    return dirPath;
+}
+
+// Get previous directory path for a given path
+RLAPI const char* GetPrevDirectoryPath(const char* dirPath)
+{
+    static char prevDirPath[MAX_FILEPATH_LENGTH];
+    memset(prevDirPath, 0, MAX_FILEPATH_LENGTH);
+    int pathLen = strlen(dirPath);
+
+    if (pathLen <= 3) strcpy(prevDirPath, dirPath);
+
+    for (int i = (pathLen - 1); (i > 0) && (pathLen > 3); i--)
+    {
+        if ((dirPath[i] == '\\') || (dirPath[i] == '/'))
+        {
+            if (i == 2) i++;    // Check for root: "C:\"
+            strncpy(prevDirPath, dirPath, i);
+            break;
+        }
+    }
+
+    return prevDirPath;
+}
+
+// Load data from file into a buffer
+RLAPI unsigned char* LoadFileData(const char* fileName, unsigned int* bytesRead)
+{
+    unsigned char* data = NULL;
+    *bytesRead = 0;
+
+    if (fileName != NULL)
+    {
+        FILE* file = fopen(fileName, "rb");
+
+        if (file != NULL)
+        {
+            // WARNING: On binary streams SEEK_END could not be found,
+            // using fseek() and ftell() could not work in some (rare) cases
+            fseek(file, 0, SEEK_END);
+            int size = ftell(file);
+            fseek(file, 0, SEEK_SET);
+
+            if (size > 0)
+            {
+                data = (unsigned char*)RL_MALLOC(sizeof(unsigned char) * size);
+
+                // NOTE: fread() returns number of read elements instead of bytes, so we read [1 byte, size elements]
+                unsigned int count = fread(data, sizeof(unsigned char), size, file);
+                *bytesRead = count;
+            }
+
+            fclose(file);
+        }
+    }
+
+    return data;
+}
+
+// Save data to file from buffer
+RLAPI void SaveFileData(const char* fileName, void* data, unsigned int bytesToWrite)
+{
+    if (fileName != NULL)
+    {
+        FILE* file = fopen(fileName, "wb");
+
+        if (file != NULL)
+        {
+            unsigned int count = fwrite(data, sizeof(unsigned char), bytesToWrite, file);
+            fclose(file);
+        }
+    }
+}
+
+// Load text data from file, returns a '\0' terminated string
+// NOTE: text chars array should be freed manually
+RLAPI char* LoadFileText(const char* fileName)
+{
+    char* text = NULL;
+
+    if (fileName != NULL)
+    {
+        FILE* textFile = fopen(fileName, "rt");
+
+        if (textFile != NULL)
+        {
+            // WARNING: When reading a file as 'text' file,
+            // text mode causes carriage return-linefeed translation...
+            // ...but using fseek() should return correct byte-offset
+            fseek(textFile, 0, SEEK_END);
+            int size = ftell(textFile);
+            fseek(textFile, 0, SEEK_SET);
+
+            if (size > 0)
+            {
+                text = (char*)RL_MALLOC(sizeof(char) * (size + 1));
+                int count = fread(text, sizeof(char), size, textFile);
+
+                // WARNING: \r\n is converted to \n on reading, so,
+                // read bytes count gets reduced by the number of lines
+                if (count < size) text = RL_REALLOC(text, count + 1);
+
+                // Zero-terminate the string
+                text[count] = '\0';
+            }
+
+            fclose(textFile);
+        }
+    }
+
+    return text;
+}
+
+// Save text data to file (write), string must be '\0' terminated
+RLAPI void SaveFileText(const char* fileName, char* text)
+{
+    if (fileName != NULL)
+    {
+        FILE* file = fopen(fileName, "wt");
+
+        if (file != NULL)
+        {
+            int count = fprintf(file, "%s", text);
+            fclose(file);
+        }
+    }
+}
+
 // Misc. functions
 #pragma region Misc. functions
 RLAPI void SetTraceLogLevel(int logType) { rf_set_log_filter(logType); }
-#define TraceLog(log_type, msg, ...) rf_log_impl(__FILE__, __LINE__, __FUNCTION__, (log_type), (msg), ##__VA_ARGS__)
 RLAPI void SetTraceLogCallback(TraceLogCallback callback) { rf_set_log_callback(callback); }
+RLAPI int GetRandomValue(int min, int max)
+{
+    if (min > max)
+    {
+        int tmp = max;
+        max = min;
+        min = tmp;
+    }
+
+    return (rand() % (abs(max - min) + 1) + min);
+}
 #pragma endregion
 
 // Drawing-related functions
@@ -455,6 +735,534 @@ RLAPI void DrawTextEx(Font font, const char* text, Vector2 position, float fontS
 RLAPI void DrawTextRec(Font font, const char* text, Rectangle rec, float fontSize, float spacing, bool wordWrap, Color tint) { rf_draw_text_rec(rffont(font), text, rfrec(rec), fontSize, spacing, wordWrap, rfcolor(tint)); }
 #pragma endregion
 
+// Text strings management functions (no utf8 strings, only byte chars)
+// NOTE: Some strings allocate memory internally for returned strings, just be careful!
+#pragma region Text strings management functions (no utf8 strings, only byte chars)
+
+// Get text length in bytes, check for \0 character
+RLAPI unsigned int TextLength(const char* text)
+{
+    unsigned int length = 0; //strlen(text)
+
+    if (text != NULL)
+    {
+        while (*text++) length++;
+    }
+
+    return length;
+}
+
+// Copy one string to another, returns bytes copied
+RLAPI int TextCopy(char* dst, const char* src)
+{
+    int bytes = 0;
+
+    if (dst != NULL)
+    {
+        while (*src != '\0')
+        {
+            *dst = *src;
+            dst++;
+            src++;
+
+            bytes++;
+        }
+
+        *dst = '\0';
+    }
+
+    return bytes;
+}
+
+// Check if two text string are equal
+// REQUIRES: strcmp()
+RLAPI bool TextIsEqual(const char* text1, const char* text2)
+{
+    bool result = false;
+
+    if (strcmp(text1, text2) == 0) result = true;
+
+    return result;
+}
+
+// Get a piece of a text string
+RLAPI const char* TextSubtext(const char* text, int position, int length)
+{
+    static char buffer[MAX_TEXT_BUFFER_LENGTH] = { 0 };
+
+    int textLength = TextLength(text);
+
+    if (position >= textLength)
+    {
+        position = textLength - 1;
+        length = 0;
+    }
+
+    if (length >= textLength) length = textLength;
+
+    for (int c = 0; c < length; c++)
+    {
+        *(buffer + c) = *(text + position);
+        text++;
+    }
+
+    *(buffer + length) = '\0';
+
+    return buffer;
+}
+
+// Replace text string
+// REQUIRES: strstr(), strncpy(), strcpy()
+// WARNING: Internally allocated memory must be freed by the user (if return != NULL)
+RLAPI char* TextReplace(char* text, const char* replace, const char* by)
+{
+    // Sanity checks and initialization
+    if (!text || !replace || !by) return NULL;
+
+    char* result;
+
+    char* insertPoint;      // Next insert point
+    char* temp;             // Temp pointer
+    int replaceLen;         // Replace string length of (the string to remove)
+    int byLen;              // Replacement length (the string to replace replace by)
+    int lastReplacePos;     // Distance between replace and end of last replace
+    int count;              // Number of replacements
+
+    replaceLen = TextLength(replace);
+    if (replaceLen == 0) return NULL;  // Empty replace causes infinite loop during count
+
+    byLen = TextLength(by);
+
+    // Count the number of replacements needed
+    insertPoint = text;
+    for (count = 0; (temp = strstr(insertPoint, replace)); count++) insertPoint = temp + replaceLen;
+
+    // Allocate returning string and point temp to it
+    temp = result = RL_MALLOC(TextLength(text) + (byLen - replaceLen) * count + 1);
+
+    if (!result) return NULL;   // Memory could not be allocated
+
+    // First time through the loop, all the variable are set correctly from here on,
+    //    temp points to the end of the result string
+    //    insertPoint points to the next occurrence of replace in text
+    //    text points to the remainder of text after "end of replace"
+    while (count--)
+    {
+        insertPoint = strstr(text, replace);
+        lastReplacePos = (int)(insertPoint - text);
+        temp = strncpy(temp, text, lastReplacePos) + lastReplacePos;
+        temp = strcpy(temp, by) + byLen;
+        text += lastReplacePos + replaceLen; // Move to next "end of replace"
+    }
+
+    // Copy remaind text part after replacement to result (pointed by moving temp)
+    strcpy(temp, text);
+
+    return result;
+}
+
+// Insert text in a specific position, moves all text forward
+// WARNING: Allocated memory should be manually freed
+RLAPI char* TextInsert(const char* text, const char* insert, int position)
+{
+    int textLen = TextLength(text);
+    int insertLen = TextLength(insert);
+
+    char* result = (char*)RL_MALLOC(textLen + insertLen + 1);
+
+    for (int i = 0; i < position; i++) result[i] = text[i];
+    for (int i = position; i < insertLen + position; i++) result[i] = insert[i];
+    for (int i = (insertLen + position); i < (textLen + insertLen); i++) result[i] = text[i];
+
+    result[textLen + insertLen] = '\0';     // Make sure text string is valid!
+
+    return result;
+}
+
+// Join text strings with delimiter
+// REQUIRES: memset(), memcpy()
+RLAPI const char* TextJoin(const char** textList, int count, const char* delimiter)
+{
+    static char text[MAX_TEXT_BUFFER_LENGTH] = { 0 };
+    memset(text, 0, MAX_TEXT_BUFFER_LENGTH);
+    char* textPtr = text;
+
+    int totalLength = 0;
+    int delimiterLen = TextLength(delimiter);
+
+    for (int i = 0; i < count; i++)
+    {
+        int textLength = TextLength(textList[i]);
+
+        // Make sure joined text could fit inside MAX_TEXT_BUFFER_LENGTH
+        if ((totalLength + textLength) < MAX_TEXT_BUFFER_LENGTH)
+        {
+            memcpy(textPtr, textList[i], textLength);
+            totalLength += textLength;
+            textPtr += textLength;
+
+            if ((delimiterLen > 0) && (i < (count - 1)))
+            {
+                memcpy(textPtr, delimiter, delimiterLen);
+                totalLength += delimiterLen;
+                textPtr += delimiterLen;
+            }
+        }
+    }
+
+    return text;
+}
+
+// Split string into multiple strings
+RLAPI const char** TextSplit(const char* text, char delimiter, int* count)
+{
+    // NOTE: Current implementation returns a copy of the provided string with '\0' (string end delimiter)
+    // inserted between strings defined by "delimiter" parameter. No memory is dynamically allocated,
+    // all used memory is static... it has some limitations:
+    //      1. Maximum number of possible split strings is set by MAX_TEXTSPLIT_COUNT
+    //      2. Maximum size of text to split is MAX_TEXT_BUFFER_LENGTH
+
+    static const char* result[MAX_TEXTSPLIT_COUNT] = { NULL };
+    static char buffer[MAX_TEXT_BUFFER_LENGTH] = { 0 };
+    memset(buffer, 0, MAX_TEXT_BUFFER_LENGTH);
+
+    result[0] = buffer;
+    int counter = 0;
+
+    if (text != NULL)
+    {
+        counter = 1;
+
+        // Count how many substrings we have on text and point to every one
+        for (int i = 0; i < MAX_TEXT_BUFFER_LENGTH; i++)
+        {
+            buffer[i] = text[i];
+            if (buffer[i] == '\0') break;
+            else if (buffer[i] == delimiter)
+            {
+                buffer[i] = '\0';   // Set an end of string at this point
+                result[counter] = buffer + i + 1;
+                counter++;
+
+                if (counter == MAX_TEXTSPLIT_COUNT) break;
+            }
+        }
+    }
+
+    *count = counter;
+    return result;
+}
+
+// Append text at specific position and move cursor!
+// REQUIRES: strcpy()
+RLAPI void TextAppend(char* text, const char* append, int* position)
+{
+    strcpy(text + *position, append);
+    *position += TextLength(append);
+}
+
+// Find first text occurrence within a string
+// REQUIRES: strstr()
+RLAPI int TextFindIndex(const char* text, const char* find)
+{
+    int position = -1;
+
+    char* ptr = strstr(text, find);
+
+    if (ptr != NULL) position = (int)(ptr - text);
+
+    return position;
+}
+
+// Get upper case version of provided string
+RLAPI const char* TextToUpper(const char* text)
+{
+    static char buffer[MAX_TEXT_BUFFER_LENGTH] = { 0 };
+
+    for (int i = 0; i < MAX_TEXT_BUFFER_LENGTH; i++)
+    {
+        if (text[i] != '\0')
+        {
+            buffer[i] = (char)toupper(text[i]);
+            //if ((text[i] >= 'a') && (text[i] <= 'z')) buffer[i] = text[i] - 32;
+
+            // TODO: Support Utf8 diacritics!
+            //if ((text[i] >= 'à') && (text[i] <= 'ý')) buffer[i] = text[i] - 32;
+        }
+        else { buffer[i] = '\0'; break; }
+    }
+
+    return buffer;
+}
+
+// Get lower case version of provided string
+RLAPI const char* TextToLower(const char* text)
+{
+    static char buffer[MAX_TEXT_BUFFER_LENGTH] = { 0 };
+
+    for (int i = 0; i < MAX_TEXT_BUFFER_LENGTH; i++)
+    {
+        if (text[i] != '\0')
+        {
+            buffer[i] = (char)tolower(text[i]);
+            //if ((text[i] >= 'A') && (text[i] <= 'Z')) buffer[i] = text[i] + 32;
+        }
+        else { buffer[i] = '\0'; break; }
+    }
+
+    return buffer;
+}
+
+// Get Pascal case notation version of provided string
+RLAPI const char* TextToPascal(const char* text)
+{
+    static char buffer[MAX_TEXT_BUFFER_LENGTH] = { 0 };
+
+    buffer[0] = (char)toupper(text[0]);
+
+    for (int i = 1, j = 1; i < MAX_TEXT_BUFFER_LENGTH; i++, j++)
+    {
+        if (text[j] != '\0')
+        {
+            if (text[j] != '_') buffer[i] = text[j];
+            else
+            {
+                j++;
+                buffer[i] = (char)toupper(text[j]);
+            }
+        }
+        else { buffer[i] = '\0'; break; }
+    }
+
+    return buffer;
+}
+
+// Encode text codepoint into utf8 text (memory must be freed!)
+RLAPI char* TextToUtf8(int* codepoints, int length)
+{
+    // We allocate enough memory fo fit all possible codepoints
+    // NOTE: 5 bytes for every codepoint should be enough
+    char* text = (char*)RL_CALLOC(length * 5, 1);
+    const char* utf8 = NULL;
+    int size = 0;
+
+    for (int i = 0, bytes = 0; i < length; i++)
+    {
+        utf8 = CodepointToUtf8(codepoints[i], &bytes);
+        memcpy(text + size, utf8, bytes);
+        size += bytes;
+    }
+
+    // Resize memory to text length + string NULL terminator
+    void* ptr = RL_REALLOC(text, size + 1);
+
+    if (ptr != NULL) text = (char*)ptr;
+
+    return text;
+}
+
+#pragma endregion
+
+// UTF8 text strings management functions
+#pragma region UTF8 text strings management functions
+
+// Encode codepoint into utf8 text (char array length returned as parameter)
+RLAPI const char* CodepointToUtf8(int codepoint, int* byteLength)
+{
+    static char utf8[6] = { 0 };
+    int length = 0;
+
+    if (codepoint <= 0x7f)
+    {
+        utf8[0] = (char)codepoint;
+        length = 1;
+    }
+    else if (codepoint <= 0x7ff)
+    {
+        utf8[0] = (char)(((codepoint >> 6) & 0x1f) | 0xc0);
+        utf8[1] = (char)((codepoint & 0x3f) | 0x80);
+        length = 2;
+    }
+    else if (codepoint <= 0xffff)
+    {
+        utf8[0] = (char)(((codepoint >> 12) & 0x0f) | 0xe0);
+        utf8[1] = (char)(((codepoint >> 6) & 0x3f) | 0x80);
+        utf8[2] = (char)((codepoint & 0x3f) | 0x80);
+        length = 3;
+    }
+    else if (codepoint <= 0x10ffff)
+    {
+        utf8[0] = (char)(((codepoint >> 18) & 0x07) | 0xf0);
+        utf8[1] = (char)(((codepoint >> 12) & 0x3f) | 0x80);
+        utf8[2] = (char)(((codepoint >> 6) & 0x3f) | 0x80);
+        utf8[3] = (char)((codepoint & 0x3f) | 0x80);
+        length = 4;
+    }
+
+    *byteLength = length;
+
+    return utf8;
+}
+
+// Get all codepoints in a string, codepoints count returned by parameters
+RLAPI int* GetCodepoints(const char* text, int* count)
+{
+    static int codepoints[MAX_TEXT_UNICODE_CHARS] = { 0 };
+    memset(codepoints, 0, MAX_TEXT_UNICODE_CHARS * sizeof(int));
+
+    int bytesProcessed = 0;
+    int textLength = TextLength(text);
+    int codepointsCount = 0;
+
+    for (int i = 0; i < textLength; codepointsCount++)
+    {
+        codepoints[codepointsCount] = GetNextCodepoint(text + i, &bytesProcessed);
+        i += bytesProcessed;
+    }
+
+    *count = codepointsCount;
+
+    return codepoints;
+}
+
+// Returns total number of characters(codepoints) in a UTF8 encoded text, until '\0' is found
+// NOTE: If an invalid UTF8 sequence is encountered a '?'(0x3f) codepoint is counted instead
+RLAPI int GetCodepointsCount(const char* text)
+{
+    unsigned int len = 0;
+    char* ptr = (char*)&text[0];
+
+    while (*ptr != '\0')
+    {
+        int next = 0;
+        int letter = GetNextCodepoint(ptr, &next);
+
+        if (letter == 0x3f) ptr += 1;
+        else ptr += next;
+
+        len++;
+    }
+
+    return len;
+}
+
+// Returns next codepoint in a UTF8 encoded text, scanning until '\0' is found
+// When a invalid UTF8 byte is encountered we exit as soon as possible and a '?'(0x3f) codepoint is returned
+// Total number of bytes processed are returned as a parameter
+// NOTE: the standard says U+FFFD should be returned in case of errors
+// but that character is not supported by the default font in raylib
+// TODO: optimize this code for speed!!
+RLAPI int GetNextCodepoint(const char* text, int* bytesProcessed)
+{
+    /*
+        UTF8 specs from https://www.ietf.org/rfc/rfc3629.txt
+        Char. number range  |        UTF-8 octet sequence
+          (hexadecimal)    |              (binary)
+        --------------------+---------------------------------------------
+        0000 0000-0000 007F | 0xxxxxxx
+        0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+        0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+        0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    */
+    // NOTE: on decode errors we return as soon as possible
+
+    int code = 0x3f;   // Codepoint (defaults to '?')
+    int octet = (unsigned char)(text[0]); // The first UTF8 octet
+    *bytesProcessed = 1;
+
+    if (octet <= 0x7f)
+    {
+        // Only one octet (ASCII range x00-7F)
+        code = text[0];
+    }
+    else if ((octet & 0xe0) == 0xc0)
+    {
+        // Two octets
+        // [0]xC2-DF    [1]UTF8-tail(x80-BF)
+        unsigned char octet1 = text[1];
+
+        if ((octet1 == '\0') || ((octet1 >> 6) != 2)) { *bytesProcessed = 2; return code; } // Unexpected sequence
+
+        if ((octet >= 0xc2) && (octet <= 0xdf))
+        {
+            code = ((octet & 0x1f) << 6) | (octet1 & 0x3f);
+            *bytesProcessed = 2;
+        }
+    }
+    else if ((octet & 0xf0) == 0xe0)
+    {
+        // Three octets
+        unsigned char octet1 = text[1];
+        unsigned char octet2 = '\0';
+
+        if ((octet1 == '\0') || ((octet1 >> 6) != 2)) { *bytesProcessed = 2; return code; } // Unexpected sequence
+
+        octet2 = text[2];
+
+        if ((octet2 == '\0') || ((octet2 >> 6) != 2)) { *bytesProcessed = 3; return code; } // Unexpected sequence
+
+        /*
+            [0]xE0    [1]xA0-BF       [2]UTF8-tail(x80-BF)
+            [0]xE1-EC [1]UTF8-tail    [2]UTF8-tail(x80-BF)
+            [0]xED    [1]x80-9F       [2]UTF8-tail(x80-BF)
+            [0]xEE-EF [1]UTF8-tail    [2]UTF8-tail(x80-BF)
+        */
+
+        if (((octet == 0xe0) && !((octet1 >= 0xa0) && (octet1 <= 0xbf))) ||
+            ((octet == 0xed) && !((octet1 >= 0x80) && (octet1 <= 0x9f)))) {
+            *bytesProcessed = 2; return code;
+        }
+
+        if ((octet >= 0xe0) && (0 <= 0xef))
+        {
+            code = ((octet & 0xf) << 12) | ((octet1 & 0x3f) << 6) | (octet2 & 0x3f);
+            *bytesProcessed = 3;
+        }
+    }
+    else if ((octet & 0xf8) == 0xf0)
+    {
+        // Four octets
+        if (octet > 0xf4) return code;
+
+        unsigned char octet1 = text[1];
+        unsigned char octet2 = '\0';
+        unsigned char octet3 = '\0';
+
+        if ((octet1 == '\0') || ((octet1 >> 6) != 2)) { *bytesProcessed = 2; return code; }  // Unexpected sequence
+
+        octet2 = text[2];
+
+        if ((octet2 == '\0') || ((octet2 >> 6) != 2)) { *bytesProcessed = 3; return code; }  // Unexpected sequence
+
+        octet3 = text[3];
+
+        if ((octet3 == '\0') || ((octet3 >> 6) != 2)) { *bytesProcessed = 4; return code; }  // Unexpected sequence
+
+        /*
+            [0]xF0       [1]x90-BF       [2]UTF8-tail  [3]UTF8-tail
+            [0]xF1-F3    [1]UTF8-tail    [2]UTF8-tail  [3]UTF8-tail
+            [0]xF4       [1]x80-8F       [2]UTF8-tail  [3]UTF8-tail
+        */
+
+        if (((octet == 0xf0) && !((octet1 >= 0x90) && (octet1 <= 0xbf))) ||
+            ((octet == 0xf4) && !((octet1 >= 0x80) && (octet1 <= 0x8f)))) {
+            *bytesProcessed = 2; return code;
+        } // Unexpected sequence
+
+        if (octet >= 0xf0)
+        {
+            code = ((octet & 0x7) << 18) | ((octet1 & 0x3f) << 12) | ((octet2 & 0x3f) << 6) | (octet3 & 0x3f);
+            *bytesProcessed = 4;
+        }
+    }
+
+    if (code > 0x10ffff) code = 0x3f;     // Codepoints after U+10ffff are invalid
+
+    return code;
+}
+
+#pragma endregion
+
 // Text misc. functions
 #pragma region Text misc. functions
 RLAPI int MeasureText(const char* text, int fontSize) { return rf_measure_text(rf_get_default_font(), text, fontSize, 0.0f).width; }
@@ -710,7 +1518,7 @@ RLAPI void rlUpdateTexture(unsigned int id, int offsetX, int offsetY, int width,
 RLAPI void rlUnloadTexture(unsigned int id) { rf_gfx_unload_texture(id); }
 
 RLAPI void rlGenerateMipmaps(Texture2D* texture) { rf_gfx_generate_mipmaps(texture); }
-RLAPI Image rlReadTexturePixels(Texture2D texture) { return rayfork_image(rf_gfx_read_texture_pixels_ez(rftex(texture))); }
+RLAPI void* rlReadTexturePixels(Texture2D texture) { return rf_gfx_read_texture_pixels_ez(rftex(texture)).data; }
 RLAPI void rlReadScreenPixels(int width, int height, Color* dstColor) { rf_gfx_read_screen_pixels(dstColor, width, height); }
 #pragma endregion
 
@@ -729,6 +1537,33 @@ RLAPI void rlUpdateMeshAt(Mesh mesh, int buffer, int count, int index) { rf_gfx_
 RLAPI void rlDrawMesh(Mesh mesh, Material material, Matrix transform) { rf_gfx_draw_mesh(rfmesh(mesh), rfmaterial(material), rfmat(transform)); }
 RLAPI void rlUnloadMesh(Mesh mesh) { rf_gfx_unload_mesh(rfmesh(mesh)); }
 #pragma endregion
+
+RLAPI Image GetTextureData(Texture2D texture)
+{
+    Image image = { 0 };
+
+    if (texture.format < 8)
+    {
+        image.data = rlReadTexturePixels(texture);
+
+        if (image.data != NULL)
+        {
+            image.width = texture.width;
+            image.height = texture.height;
+            image.format = texture.format;
+            image.mipmaps = 1;
+
+#if defined(RAYFORK_GRAPHICS_BACKEND_GL_ES3)
+            // NOTE: Data retrieved on OpenGL ES 2.0 should be RGBA,
+            // coming from FBO color buffer attachment, but it seems
+            // original texture format is retrieved on RPI...
+            image.format = UNCOMPRESSED_R8G8B8A8;
+#endif
+        }
+    }
+
+    return image;
+}
 
 #endif
 #pragma endregion

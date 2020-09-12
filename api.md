@@ -5,9 +5,8 @@ Here is list of functions wrapped by rayport from raylib and supported via rayfo
 I recommend you having some experience in C before reading this...
 
 ```c
-RLAPI void SetTraceLogLevel(int logType);                         // Set the current threshold (minimum) log level
-RLAPI void SetTraceLogCallback(TraceLogCallback callback);        // Set a trace log callback to enable custom logging
-RLAPI void TraceLog(int logType, const char *text, ...);          // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LO
+// module: core
+// Drawing-related functions
 RLAPI void ClearBackground(Color color);                          // Set background color (framebuffer clear color)
 RLAPI void BeginDrawing(void);                                    // Setup canvas (framebuffer) to start drawing
 RLAPI void EndDrawing(void);                                      // End canvas drawing and swap buffers (double buffering)
@@ -19,12 +18,16 @@ RLAPI void BeginTextureMode(RenderTexture2D target);              // Initializes
 RLAPI void EndTextureMode(void);                                  // Ends drawing to render texture
 RLAPI void BeginScissorMode(int x, int y, int width, int height); // Begin scissor mode (define screen area for following drawing)
 RLAPI void EndScissorMode(void);                                  // End scissor mode
+
+// Screen-space-related functions
 RLAPI Ray GetMouseRay(Vector2 mousePosition, Camera camera);
 RLAPI Matrix GetCameraMatrix(Camera camera);                      // Returns camera transform matrix (view matrix)
 RLAPI Matrix GetCameraMatrix2D(Camera2D camera);                  // Returns camera 2d transform matrix
 RLAPI Vector2 GetWorldToScreenEx(Vector3 position, Camera camera, int width, int height); // Returns size position for a 3d world space position
 RLAPI Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera); // Returns the screen space position for a 2d camera world space position
 RLAPI Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera); // Returns the world space position for a 2d camera screen space position
+
+// Color-related functions
 RLAPI int ColorToInt(Color color);                                // Returns hexadecimal value for a Color
 RLAPI Vector4 ColorNormalize(Color color);                        // Returns color normalized as float [0..1]
 RLAPI Color ColorFromNormalized(Vector4 normalized);              // Returns color from normalized values [0..1]
@@ -35,6 +38,27 @@ RLAPI Color Fade(Color color, float alpha);                       // Color fade-
 RLAPI void SetCameraMode(Camera cam, int mode, rf_camera3d_state* state);                // Set camera mode (multiple camera modes available)
 RLAPI void UpdateCamera(Camera cam, rf_camera3d_state* state, rf_input_state_for_update_camera input_state);                          // Update camera position for selected mode
 
+// Misc. functions
+RLAPI void SetTraceLogLevel(int logType);                         // Set the current threshold (minimum) log level
+RLAPI void SetTraceLogCallback(TraceLogCallback callback);        // Set a trace log callback to enable custom logging
+RLAPI void TraceLog(int logType, const char *text, ...);          // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LO
+RLAPI int GetRandomValue(int min, int max);                       // Returns a random value between min and max (both included)
+
+// Files management functions
+RLAPI unsigned char *LoadFileData(const char *fileName, unsigned int *bytesRead);     // Load file data as byte array (read)
+RLAPI void SaveFileData(const char *fileName, void *data, unsigned int bytesToWrite); // Save data to file from byte array (write)
+RLAPI char *LoadFileText(const char *fileName);                   // Load text data from file (read), returns a '\0' terminated string
+RLAPI void SaveFileText(const char *fileName, char *text);        // Save text data to file (write), string must be '\0' terminated
+RLAPI bool FileExists(const char *fileName);                      // Check if file exists
+RLAPI bool IsFileExtension(const char *fileName, const char *ext);// Check file extension
+RLAPI const char *GetExtension(const char *fileName);             // Get pointer to extension for a filename string
+RLAPI const char *GetFileName(const char *filePath);              // Get pointer to filename for a path string
+RLAPI const char *GetFileNameWithoutExt(const char *filePath);    // Get filename string without extension (uses static string)
+RLAPI const char *GetDirectoryPath(const char *filePath);         // Get full path for a given fileName with path (uses static string)
+RLAPI const char *GetPrevDirectoryPath(const char *dirPath);      // Get previous directory path for a given path (uses static string)
+
+// module: shapes
+// Basic shapes drawing functions
 RLAPI void DrawPixel(int posX, int posY, Color color);                                                   // Draw a pixel
 RLAPI void DrawPixelV(Vector2 position, Color color);                                                    // Draw a pixel (Vector version)
 RLAPI void DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, Color color);                // Draw a line
@@ -70,6 +94,7 @@ RLAPI void DrawTriangleStrip(Vector2 *points, int pointsCount, Color color);    
 RLAPI void DrawPoly(Vector2 center, int sides, float radius, float rotation, Color color);               // Draw a regular polygon (Vector version)
 RLAPI void DrawPolyLines(Vector2 center, int sides, float radius, float rotation, Color color);          // Draw a polygon outline of n sides
 
+// Basic shapes collision detection functions
 RLAPI bool CheckCollisionLineLine(Vector2 startPos1, Vector2 endPos1, Vector2 startPos2, Vector2 endPos2);   // Check collision between two lines
 RLAPI bool CheckCollisionLineRec(Vector2 startPos, Vector2 endPos, Rectangle rec);                           // Check collision between line and rectangle
 RLAPI bool CheckCollisionRecs(Rectangle rec1, Rectangle rec2);                                               // Check collision between two rectangles
@@ -81,9 +106,21 @@ RLAPI bool CheckCollisionPointRec(Vector2 point, Rectangle rec);                
 RLAPI bool CheckCollisionPointCircle(Vector2 point, Vector2 center, float radius);                           // Check if point is inside circle
 RLAPI bool CheckCollisionPointTriangle(Vector2 point, Vector2 p1, Vector2 p2, Vector2 p3);                   // Check if point is inside a triangle
 
+// module: textures
+// Image loading functions
+// NOTE: This functions do not require GPU access
 RLAPI Image LoadImage(const char *fileName);                                                             // Load image from file into CPU memory (RAM)
 RLAPI void UnloadImage(Image image);                                                                     // Unload image from CPU memory (RAM)
 
+// Image generation functions
+RLAPI Image GenImageColor(int width, int height, Color color);                                           // Generate image: plain color
+RLAPI Image GenImageGradientV(int width, int height, Color top, Color bottom);                           // Generate image: vertical gradient
+RLAPI Image GenImageGradientH(int width, int height, Color left, Color right);                           // Generate image: horizontal gradient
+RLAPI Image GenImageGradientRadial(int width, int height, float density, Color inner, Color outer);      // Generate image: radial gradient
+RLAPI Image GenImageChecked(int width, int height, int checksX, int checksY, Color col1, Color col2);    // Generate image: checked
+RLAPI Image GenImageWhiteNoise(int width, int height, float factor);                                     // Generate image: white noise
+RLAPI Image GenImagePerlinNoise(int width, int height, int offsetX, int offsetY, float scale);           // Generate image: perlin noise
+RLAPI Image GenImageCellular(int width, int height, int tileSize);                                       // Generate image: cellular algorithm. Bigger tileSize means bigger cells
 RLAPI Image GenImageColor(int width, int height, Color color);                                           // Generate image: plain color
 RLAPI Image GenImageGradientV(int width, int height, Color top, Color bottom);                           // Generate image: vertical gradient
 RLAPI Image GenImageGradientH(int width, int height, Color left, Color right);                           // Generate image: horizontal gradient
@@ -93,15 +130,7 @@ RLAPI Image GenImageWhiteNoise(int width, int height, float factor);            
 RLAPI Image GenImagePerlinNoise(int width, int height, int offsetX, int offsetY, float scale);           // Generate image: perlin noise
 RLAPI Image GenImageCellular(int width, int height, int tileSize);                                       // Generate image: cellular algorithm. Bigger tileSize means bigger cells
 
-RLAPI Image GenImageColor(int width, int height, Color color);                                           // Generate image: plain color
-RLAPI Image GenImageGradientV(int width, int height, Color top, Color bottom);                           // Generate image: vertical gradient
-RLAPI Image GenImageGradientH(int width, int height, Color left, Color right);                           // Generate image: horizontal gradient
-RLAPI Image GenImageGradientRadial(int width, int height, float density, Color inner, Color outer);      // Generate image: radial gradient
-RLAPI Image GenImageChecked(int width, int height, int checksX, int checksY, Color col1, Color col2);    // Generate image: checked
-RLAPI Image GenImageWhiteNoise(int width, int height, float factor);                                     // Generate image: white noise
-RLAPI Image GenImagePerlinNoise(int width, int height, int offsetX, int offsetY, float scale);           // Generate image: perlin noise
-RLAPI Image GenImageCellular(int width, int height, int tileSize);                                       // Generate image: cellular algorithm. Bigger tileSize means bigger cells
-
+// Image manipulation functions
 RLAPI Image ImageCopy(Image image);                                                                      // Create an image duplicate (useful for transformations)
 RLAPI void ImageFormat(Image *image, int newFormat);                                                     // Convert image data to desired format
 RLAPI void ImageAlphaMask(Image *image, Image alphaMask);                                                // Apply alpha mask to image
@@ -126,6 +155,8 @@ RLAPI void ImageColorReplace(Image *image, Color color, Color replace);         
 RLAPI Color *ImageExtractPalette(Image image, int maxPaletteSize, int *extractCount);                    // Extract color palette from image to maximum size (memory should be freed)
 RLAPI Rectangle GetImageAlphaBorder(Image image, float threshold);                                       // Get image alpha border rectangle
 
+// Image drawing functions
+// NOTE: Image software-rendering functions (CPU)
 RLAPI void ImageClearBackground(Image *dst, Color color);                                                // Clear image background with given color
 RLAPI void ImageDrawRectangle(Image *dst, int posX, int posY, int width, int height, Color color);       // Draw rectangle within an image
 RLAPI void ImageDrawRectangleV(Image *dst, Vector2 position, Vector2 size, Color color);                 // Draw rectangle within an image (Vector version)
@@ -138,6 +169,18 @@ RLAPI void ImageDrawLineV(Image *dst, Vector2 start, Vector2 end, Color color); 
 RLAPI void ImageDrawCircle(Image *dst, int centerX, int centerY, int radius, Color color);               // Draw circle within an image
 RLAPI void ImageDrawCircleV(Image *dst, Vector2 center, int radius, Color color);                        // Draw circle within an image (Vector version)
 
+// Texture loading functions
+// NOTE: These functions require GPU access
+RLAPI Texture2D LoadTexture(const char *fileName);                                                       // Load texture from file into GPU memory (VRAM)
+RLAPI Texture2D LoadTextureFromImage(Image image);                                                       // Load texture from image data
+RLAPI TextureCubemap LoadTextureCubemap(Image image, int layoutType);                                    // Load cubemap from image, multiple image cubemap layouts supported
+RLAPI RenderTexture2D LoadRenderTexture(int width, int height);                                          // Load texture for rendering (framebuffer)
+RLAPI void UnloadTexture(Texture2D texture);                                                             // Unload texture from GPU memory (VRAM)
+RLAPI void UnloadRenderTexture(RenderTexture2D target);                                                  // Unload render texture from GPU memory (VRAM)
+RLAPI void UpdateTexture(Texture2D texture, const void *pixels);                                         // Update GPU texture with new data
+RLAPI Image GetTextureData(Texture2D texture);                                                           // Get pixel data from GPU texture and return an Image
+RLAPI Image GetScreenData(void);                                                                         // Get pixel data from screen buffer and return an Image (screenshot)
+	
 RLAPI void GenTextureMipmaps(Texture2D *texture);                                                        // Generate GPU mipmaps for a texture
 RLAPI void SetTextureFilter(Texture2D texture, int filterMode);                                          // Set texture scaling filter mode
 RLAPI void SetTextureWrap(Texture2D texture, int wrapMode);                                              // Set texture wrapping mode
