@@ -57,6 +57,12 @@ RLAPI const char *GetFileNameWithoutExt(const char *filePath);    // Get filenam
 RLAPI const char *GetDirectoryPath(const char *filePath);         // Get full path for a given fileName with path (uses static string)
 RLAPI const char *GetPrevDirectoryPath(const char *dirPath);      // Get previous directory path for a given path (uses static string)
 
+//------------------------------------------------------------------------------------
+// Camera System Functions (Module: camera)
+//------------------------------------------------------------------------------------
+RLAPI void SetCameraMode(Camera cam, int mode, rf_camera3d_state* state);                                         // Set camera mode (multiple camera modes available)
+RLAPI void UpdateCamera(Camera *camera, rf_camera3d_state* state, rf_input_state_for_update_camera input_state);  // Update camera position for selected mode
+
 // module: shapes
 // Basic shapes drawing functions
 RLAPI void DrawPixel(int posX, int posY, Color color);                                                   // Draw a pixel
