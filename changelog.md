@@ -10,7 +10,7 @@
 - Wrapped a bunch of core functions!
 - Wrapped strings management functions!
 
-> CAUTION: You still need to include easings header to use easings!
+> CAUTION: You still need to include raylib easings header to use easings!
 
 ## 11/September/2020
 
