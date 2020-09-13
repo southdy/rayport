@@ -6,9 +6,11 @@
 
 ### Improvements
 
-- Readded raymath again (You don't need to include `raymath.h` as wrapped from rayfork!)
+- Readded raymath again (You don't need to include raymath header as wrapped from rayfork!)
 - Wrapped a bunch of core functions!
 - Wrapped strings management functions!
+
+> CAUTION: You still need to include easings header to use easings!
 
 ## 11/September/2020
 
