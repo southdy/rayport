@@ -63,7 +63,7 @@ Original code can be found [here](https://github.com/SasLuca/rayfork-tests/blob/
 ### NOTES
 
 1. Note that rayfork still miss some features unlike raylib, So some functions aren't wrapped yet!
-2. Since 12/September/2020, You should include `easings.h` in order to use easings.
+2. Since 12/September/2020, You should include easings header in order to use easings.
 3. Although rayfork still miss some stuff, I successed lately in wrapping more stuff (And will still do)!
 4. Don't use custom `rlgl.h` as RLGL since it's wrapped from `rayport.h`, That's to keep compatibility!
 5. If you want to use custom `raylib.h` (Your own one), Make sure you add changes from the custom `raylib.h` i made.
