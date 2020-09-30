@@ -20,42 +20,42 @@ You need to include `raylib.h` and rayfork to use rayport!
 Here is a simple example for rayport with rayfork uses GLFW (Include "rayport.h" with including rayfork and raylib previously!)
 
 ```c
+#include "platform.h"
 #include "raylib.h"
-#include "rayfork.h"
-#include "glad.h"
 #include "rayport.h"
-#include "GLFW/glfw3.h"
 
-int main()
+platform_window_details window = {
+    .width  = 800,
+    .height = 450,
+    .title  = "rayfork"
+};
+
+rf_context ctx;
+rf_render_batch batch;
+Texture2D texture;
+
+extern void game_init(rf_gfx_backend_data* gfx_data)
 {
-    // Init glfw and opengl
-    glfwInit();
-    GLFWwindow* window = glfwCreateWindow(800, 450, "rayfork simple glfw example", NULL, NULL);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
-    gladLoadGL();
+    // Initialize rayfork
+    rf_init_context(&ctx);
+    rf_init_gfx(window.width, window.height, gfx_data);
 
-    // Init rayfork
-    rf_context rf_ctx = {0};
-    rf_default_render_batch rf_mem = {0};
-    rf_init(&rf_ctx, &rf_mem, 800, 450, RF_DEFAULT_OPENGL_PROCS);
+    // Initialize the rendering batch
+    batch = rf_create_default_render_batch(RF_DEFAULT_ALLOCATOR);
+    rf_set_active_render_batch(&batch);
 
-    // Load a texture with the default libc allocator and io callbacks.
-    Texture2D texture = LoadTexture("bananya.png");
+    // Load texture
+    texture = LoadTexture("bananya.png");
+}
 
-    // Main game loop
-    while (!glfwWindowShouldClose(window))
-    {
-        // Render the image and clear the background to some nice shade of white
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawRectangle(0, 0, 100, 100, RED);
-        DrawTexture(texture, 0, 0, WHITE);
-        EndDrawing();
-
-        glfwPollEvents();
-        glfwSwapBuffers(window);
-    }
+extern void game_update(const platform_input_state* input)
+{
+    // Render the image and clear the background to some nice shade of white
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+    DrawRectangle(0, 0, 100, 100, RED);
+    DrawTexture(texture, 0, 0, WHITE);
+    EndDrawing();
 }
 ```
 
